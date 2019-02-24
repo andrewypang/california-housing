@@ -4,6 +4,7 @@
 		<meta name="viewport" content="initial-scale=1.0">
 		<meta charset="utf-8">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<script src="papaparse.min.js"></script>
 
 		<!-- Include Google Maps JS API -->
 		<!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCriTc-URJTbKpAu2HUu4LGL5XEX9cYO8M&callback=initMap" type="text/javascript"></script>-->
@@ -19,30 +20,33 @@
 		</style>
 
 		<input id="btnResetZoom" type="button" value="Reset Zoom">
-		<input id="btnZoomToSJ" type="button" value="Zoom To San Jose">
-		<input id="btnZoomToSF" type="button" value="Zoom To San Francisco">
-		<input id="btnZoomToLA" type="button" value="Zoom To Los Angeles">
+		<input id="btnZoomToSJ"  type="button" value="Zoom To San Jose">
+		<input id="btnZoomToSF"  type="button" value="Zoom To San Francisco">
+		<input id="btnZoomToLA"  type="button" value="Zoom To Los Angeles">
+		<input id="csv-file"     type="file"   name="files" onchange="parseHousingData(this.files)">
 
 	</head>
 	<body>
 
 		<div id="mapDiv"></div>
 
-		<!-- Map creation is here -->
 		<script type="text/javascript">
 			var startDate = new Date();
 
+			var CensusDataAPIKey = "42518e77865b671d0fe762fdf3151be2209dd058";
 			var ZOOM_OUT = 6;
 			var ZOOM_IN = 10;
 
 
 			//Defining map as a global variable to access from other functions
 			var map;
+			var dataset_housing = null;
+
 			function initMap(){
 				var centerOfCali = new google.maps.LatLng(37.229722, -119.509444);
 				var CALIFORNIA_BOUNDS = {
-			    	north: 43.296398,
-			        south: 30.717281,
+			    	north: 45.296398,
+			        south: 25.717281,
 			        west: -134.174310,
 			        east: -109.663626
 			      };
@@ -58,7 +62,8 @@
 					restriction: {
 						latLngBounds: CALIFORNIA_BOUNDS,
 						strictBounds: false,
-						},
+					},
+					disableDoubleClickZoom: true,
 					mapTypeId: google.maps.MapTypeId.ROADMAP
 				};
 				//Getting map DOM element
@@ -68,22 +73,16 @@
 
 				parseGeoJSON();
 
-
-
-
-
-
-
 				var endDate   = new Date();
 				console.log("Secs:"+(endDate.getTime() - startDate.getTime()) / 1000);
-
 
 
 			}
 
 			function resetZoom() {
-			       map.setCenter(centerOfCali);
-			       map.setZoom(ZOOM_OUT);
+				centerOfCali = map.center;
+				map.setCenter(centerOfCali);
+				map.setZoom(ZOOM_OUT);
 			}
 
 			function zoomToSanJose() {
@@ -110,8 +109,6 @@
 				document.getElementById('btnZoomToSF').addEventListener('click', function(){ zoomToSanFrancisco(); });
 				document.getElementById('btnZoomToLA').addEventListener('click', function(){ zoomToLosAngeles(); });
 			}
-
-			//google.maps.event.addDomListener(window, 'load', initMap);
 
 			startButtonEvents();
 
@@ -185,7 +182,7 @@
 			function parseGeoJSON() {
 				$.ajax({
 				    type: "POST",
-				    url: "geojson_california.json",
+				    url: "county-subdivision.json",
 				    contentType: "application/json; charset=utf-8",
 				    dataType: "json",
 				    success: function(json) {
@@ -215,10 +212,42 @@
 		        	//event.feature.setProperty('isColorful', true);
 		        	event.feature.setProperty('isColorful', !(event.feature.getProperty('isColorful')) );
 		        });
+
+		        // https://api.census.gov/data
+			}
+
+			function parseHousingData(evt) {
+
+				const selectedFile = document.getElementById('csv-file').files[0];
+
+				var config = {
+			      header: true,
+			      dynamicTyping: true,
+			      complete: function(results) {
+			        console.log(results);
+			        dataset_housing = results;
+			        var markers = [];
+			        results.data.forEach( function(entry) {
+			        	var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
+
+			        	var MarkerOptions = {
+			        		position: entry_position,
+			        		opacity: 0.5,
+			        		map: map
+			        	};
+			        	var marker = new google.maps.Marker(MarkerOptions);
+
+			        	markers.push(marker);
+			        });
+			        var markerCluster = new MarkerClusterer(map, markers, {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m', zoomOnClick: false });
+			      } // End of complete: function()
+			    } // End of config
+
+				Papa.parse(selectedFile, config);
 			}
 
 		</script>
-		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCriTc-URJTbKpAu2HUu4LGL5XEX9cYO8M&callback=initMap"
-		    async defer></script>
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCriTc-URJTbKpAu2HUu4LGL5XEX9cYO8M&libraries=visualization&callback=initMap" async defer> </script>
+		<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"> </script>
 	</body>
 </html>
