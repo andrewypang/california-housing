@@ -21,7 +21,7 @@
 				position: absolute;
 				text-align: center;
 				font-family: "Roboto", "Arial", sans-serif;
-				font-size: 13px;
+				font-size: 14px;
 				z-index: 5;
 				box-shadow: 0 4px 6px -4px #333;
 				padding: 5px 10px;
@@ -38,8 +38,8 @@
 		    }
 
 		    #data-box {
-				top: 10px;
-				left: 500px;
+				top: 180px;
+				left: 10px;
 				height: 45px;
 				line-height: 45px;
 				display: none;
@@ -58,7 +58,7 @@
 		    }
 
 		    .color-key {
-				background: linear-gradient(to right,
+				background: linear-gradient(to left,
 					hsl(5, 69%, 54%) 0%,
 					hsl(29, 71%, 51%) 17%,
 					hsl(54, 74%, 47%) 33%,
@@ -74,10 +74,8 @@
 				line-height: 1.0em;
 		    }
 
-		    #data-value { font-size: 2.0em; font-weight: bold }
-			#data-label { font-size: 2.0em; font-weight: normal; padding-right: 10px; }
-			#data-label:after { content: ':' }
-
+			#data-label { font-size: 14px; font-weight: normal; padding-right: 10px; }
+			#data-value { font-size: 14px; font-weight: bold }
 
 		    #data-caret { 
 		    	margin-left: -5px; 
@@ -86,6 +84,11 @@
 		    	width: 14px
 		    }
 
+/*		    li {
+		    	line-height: 1.5;
+		    	display: none;
+		    }*/
+
 
 		</style>
 
@@ -93,7 +96,7 @@
 		<input id="btnZoomToSJ"  type="button" value="Zoom To San Jose">
 		<input id="btnZoomToSF"  type="button" value="Zoom To San Francisco">
 		<input id="btnZoomToLA"  type="button" value="Zoom To Los Angeles">
-		<input id="csv-file"     type="file"   name="files" onchange="parseHousingData(this.files)">
+		<input id="csv-file"     type="file"   name="files" onchange="loadHousingData(this.files)">
 
 
 	</head>
@@ -103,10 +106,14 @@
 
 		<div id="controls" class="nicebox">
 		  <div>
-		  <select id="census-variable">
-		  	<option value="None" selected>None</option>
-		    <option value="HouseMarkers">HouseMarkers</option>
+		  <select disabled id="census-variable">
+		  	<option value="None" selected="selected">None</option>
+		    <option value="HouseMarkers">House Markers</option>
 		    <option value="HeatmapWithPopulation">Heatmap with Population</option>
+		    <option value="HeatmapWithMedianIncome">Heatmap with Median-Income</option>
+		    <option value="HeatmapWithMedianHouseValue">Heatmap with Median House Value</option>
+
+
 		  </select>
 		  </div>
 		  <div id="legend">
@@ -118,6 +125,12 @@
 		<div id="data-box" class="nicebox">
 		  <label id="data-label" for="data-value"></label>
 		  <span id="data-value"></span>
+		  <ul id="county-data-list">
+		  	<li id="num-of-data">Number of Data Points</li>
+		  	<li id="population-value">Population</li>
+		  	<li id="median_income-value">Median Income</li>
+		  	<li id="median_house-value">Median House Value</li>
+		  </ul>
 		</div>
 
 
@@ -126,12 +139,15 @@
 
 			var CensusDataAPIKey = "42518e77865b671d0fe762fdf3151be2209dd058";
 			var ZOOM_OUT = 6;
-			var ZOOM_IN = 10;
+			var ZOOM_IN = 9;
 
 
 			//Defining map as a global variable to access from other functions
 			var map;
 			var dataset_housing = null;
+			var housingCluster = null;
+			var heatmap = null;
+			var dataLayer = [];
 
 			function initMap(){
 				var centerOfCali = new google.maps.LatLng(37.229722, -119.509444);
@@ -148,7 +164,7 @@
 				var mapOptions = {
 					center: centerOfCali,
 					zoom: ZOOM_OUT,
-					maxZoom: ZOOM_IN+3,
+					maxZoom: 15,
 					minZoom: ZOOM_OUT,
 					restriction: {
 						latLngBounds: CALIFORNIA_BOUNDS,
@@ -169,12 +185,17 @@
 	                loadCensusData(selectBox.options[selectBox.selectedIndex].value);
 	            });
 
-
+	            google.maps.event.addDomListener(selectBox, 'zoom_changed', function() {
+	      
+	            });
 
 				parseGeoJSON();
 
-				var endDate   = new Date();
-				console.log("Secs:"+(endDate.getTime() - startDate.getTime()) / 1000);
+				$(document).ready()
+				{
+					var endDate   = new Date();
+					console.log("Secs:"+(endDate.getTime() - startDate.getTime()) / 1000);
+				}
 
 
 			}
@@ -188,17 +209,210 @@
 				});
 				document.getElementById('data-box').style.display = 'none';
 				document.getElementById('data-caret').style.display = 'none';
+
+				//Clear markers and heatmap
+				if(housingCluster != null)
+				{
+					housingCluster.clearMarkers();
+				}
+				if(heatmap != null)
+				{
+					//heatmap.getMap() != null
+					heatmap.setMap(null);
+				}
+				if(dataLayer.length != 0)
+				{
+					for(var i = 0; i < dataLayer.length; i++)
+					{
+						dataLayer[i].setMap(null);
+						dataLayer[i] = null;
+					}
+					dataLayer = [];
+				}
 			}
 
 			function loadCensusData(variable) {
-				if(variable == "HeatmapWithPopulation")
-				{
-					console.log(dataset_housing);
-				}
-				else if(variable == "HouseMarkers")
+				var dataMin = Number.MAX_VALUE;
+				var dataMinName = "";
+				var dataMax = -Number.MAX_VALUE;
+				var dataMaxName = "";
+				var dataMinMarker;
+				var dataMaxMarker;
+
+				if(variable == "None")
 				{
 
 				}
+				else if(variable == "HouseMarkers")
+				{
+					var markers = [];
+					dataset_housing.data.forEach( function(entry) {
+						var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
+
+						var MarkerOptions = {
+							position: entry_position,
+							opacity: 0.5,
+							map: map
+						};
+						var marker = new google.maps.Marker(MarkerOptions);
+
+						markers.push(marker);
+					});
+					var MarkerClustererOptions = {
+						imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m', 
+						zoomOnClick: false, 
+						minimumClusterSize: 4
+					};
+					housingCluster = new MarkerClusterer(map, markers, MarkerClustererOptions);
+					console.log("Success! Loaded House Markers");
+				}
+				else if(variable == "HeatmapWithPopulation")
+				{
+					var heatmapData = [];
+					var dataMinMarker;
+					var dataMaxMarker;
+					var dataMinLocation;
+					var dataMaxLocation;
+					var dataMinMarkerOptions;
+					var dataMaxMarkerOptions;
+
+					dataset_housing.data.forEach( function(entry)
+					{
+						var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
+
+						var weightedLoc = {
+						    location: entry_position,
+						    weight: entry.population
+						};
+
+						heatmapData.push(weightedLoc);
+
+						// Final Min and Max
+						if(entry.population < dataMin)
+						{
+							dataMin = entry.population;
+							dataMinLocation = new google.maps.LatLng(entry.latitude, entry.longitude);
+							dataMinMarkerOptions = {
+								position: dataMinLocation,
+								opacity: 0.7,
+								icon: { url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png" },
+								map: map
+							};
+						}
+						if(entry.population > dataMax)
+						{
+							dataMax = entry.population;
+							dataMaxLocation = new google.maps.LatLng(entry.latitude, entry.longitude);
+							dataMaxMarkerOptions = {
+								position: dataMaxLocation,
+								opacity: 0.7,
+								icon: { url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" },
+								map: map
+							};
+						}
+					});
+
+					heatmap = new google.maps.visualization.HeatmapLayer({
+						data: heatmapData,
+						dissipating: true,
+						radius: 20,
+						map: map
+					});
+
+					dataMinMarker = new google.maps.Marker(dataMinMarkerOptions);
+					dataMaxMarker = new google.maps.Marker(dataMaxMarkerOptions);
+					dataLayer.push(dataMinMarker);
+					dataLayer.push(dataMaxMarker);
+
+					console.log("Success! Loaded Heatmap With Population");
+				}
+				else if(variable == "HeatmapWithMedianIncome")
+				{
+					var heatmapData = [];
+					dataset_housing.data.forEach( function(entry)
+					{
+						var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
+
+						var weightedLoc = {
+						    location: entry_position,
+						    weight: entry.median_income
+						};
+
+						heatmapData.push(weightedLoc);
+
+						if(entry.median_income < dataMin)
+						{
+							dataMin = entry.median_income;
+						}
+						if(entry.median_income > dataMax)
+						{
+							dataMax = entry.median_income;
+						}
+					});
+
+					heatmap = new google.maps.visualization.HeatmapLayer({
+						data: heatmapData,
+						dissipating: true,
+						radius: 20,
+						map: map
+					});
+
+					console.log("Success! Loaded Heatmap With Median-Income");
+				}
+				else if(variable == "HeatmapWithMedianHouseValue")
+				{
+					var heatmapData = [];
+					dataset_housing.data.forEach( function(entry)
+					{
+						var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
+
+						var weightedLoc = {
+						    location: entry_position,
+						    weight: entry.median_house_value
+						};
+
+						heatmapData.push(weightedLoc);
+
+						if(entry.median_house_value < dataMin)
+						{
+							dataMin = entry.median_house_value;
+						}
+						if(entry.median_house_value > dataMax)
+						{
+							dataMax = entry.median_house_value;
+						}
+					});
+
+					heatmap = new google.maps.visualization.HeatmapLayer({
+						data: heatmapData,
+						dissipating: true,
+						radius: 20,
+						map: map
+					});
+
+					console.log("Success! Loaded Heatmap With Median House Value");
+				}
+
+				if( dataMin != Number.MAX_VALUE || dataMax != -Number.MAX_VALUE)
+				{
+					// update and display the legend
+					document.getElementById('census-min').textContent = dataMin.toLocaleString();
+					document.getElementById('census-max').textContent = dataMax.toLocaleString();
+					//document.getElementById('data-label').textContent = 
+					//console.log(dataLayer);
+
+
+					document.getElementById('data-box').style.display = 'block';
+				}
+				else
+				{
+					// reset back to default min & max
+					document.getElementById('census-min').textContent = "min";
+					document.getElementById('census-max').textContent = "max";
+					document.getElementById('data-box').style.display = 'none';
+				}
+
+
 			}
 
 
@@ -235,73 +449,6 @@
 
 			startButtonEvents();
 
-			/*function drawGeometry(geom){
-				if(geom.type == 'Point'){
-				    var coordinate = new google.maps.LatLng(geom.coordinates[1], geom.coordinates[0]);
-				    var marker = new google.maps.Marker({
-				    	position: coordinate,
-				    	map: map,
-				    	title: 'Marker'
-					});
-				}
-				else if(geom.type == 'LineString'){
-					var pointCount = geom.coordinates.length;
-					var linePath = [];
-					for (var i=0; i < pointCount; i++) {
-						var tempLatLng = new google.maps.LatLng(geom.coordinates[i][1], geom.coordinates[i][0]);
-						linePath.push(tempLatLng);
-					}
-					var lineOptions = {
-						path: linePath,
-						strokeWeight: 7,
-						strokeColor: '#19A3FF',
-						strokeOpacity: 0.8,
-						map: map
-					};
-					var polyline = new google.maps.Polyline(lineOptions);
-				}
-				else if(geom.type == 'Polygon'){
-					var pointCount = geom.coordinates[0].length;
-					var areaPath = [];
-					for (var i=0; i < pointCount; i++) {
-						var tempLatLng = new google.maps.LatLng(geom.coordinates[0][i][1], geom.coordinates[0][i][0]);
-						areaPath.push(tempLatLng);
-					}
-					var polygonOptions = {
-						paths: areaPath,
-						strokeColor: '#FF0000',
-						strokeOpacity: 0.9,
-						strokeWeight: 3,
-						fillColor: '#FFFF00',
-						fillOpacity: 0.25,
-						map: map };
-					var polygon = new google.maps.Polygon(polygonOptions);
-				}
-				else if(geom.type == 'MultiPolygon'){
-					console.log(geom.coordinates.length);
-					for (var j = 0; j < geom.coordinates.length; j++) {
-						var areaPath = [];
-						for (var i=0; i < geom.coordinates[j].length; i++) {
-							var tempLatLng = new google.maps.LatLng(geom.coordinates[j][i][1], geom.coordinates[j][i][0]);
-							areaPath.push(tempLatLng);
-						}
-					}
-					
-					var polygonOptions = {
-						paths: areaPath,
-						strokeColor: '#FFFF00',
-						strokeOpacity: 0.9,
-						strokeWeight: 3,
-						fillColor: '#FFFFF0',
-						fillOpacity: 0.25,
-						map: map };
-					var polygon = new google.maps.Polygon(polygonOptions);
-				}
-				else{
-					console.log("Error:" + geom.type);
-				}
-			} */
-
 			function parseGeoJSON() {
 				$.ajax({
 				    type: "POST",
@@ -326,20 +473,69 @@
 		          return /** @type {!google.maps.Data.StyleOptions} */({
 		            fillColor: color,
 		            strokeColor: color,
+		            fillOpacity: 0.1,
+		            strokeOpacity: 0.1,
 		            strokeWeight: 2
 		          });
 		        });
 
-		        // When the user clicks, set 'isColorful', changing the color of the letters.
+		        // When the user clicks, set 'isColorful', changing the color
 		        map.data.addListener('click', function(event) {
-		        	//event.feature.setProperty('isColorful', true);
 		        	event.feature.setProperty('isColorful', !(event.feature.getProperty('isColorful')) );
+
+		        	// Get headers
+		        	var subcounty_housing_median_age = subcounty_total_rooms = subcounty_total_bedrooms = subcounty_population = subcounty_households = subcounty_median_income = subcounty_median_house_value = subcounty_ocean_proximity = 0;
+
+		        	// Get info:: county-subdivision.geojson <=> housing.csv
+		        	var entryCount = 0;
+		        	dataset_housing.data.forEach( function(entry) {
+						var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
+
+						if(event.feature.getGeometry().getType() === 'Polygon')
+						{
+							var polyPath = event.feature.getGeometry().getAt(0).getArray();
+							var poly = new google.maps.Polygon({
+								paths: polyPath
+							});
+
+							if(google.maps.geometry.poly.containsLocation(entry_position, poly))
+							{
+								entryCount += 1;
+								subcounty_housing_median_age += entry.housing_median_age; 
+								subcounty_total_rooms += entry.total_rooms;
+								subcounty_total_bedrooms += entry.total_bedrooms;
+								subcounty_population += entry.population;
+								subcounty_households += entry.households;
+								subcounty_median_income += entry.median_income;
+								subcounty_median_house_value += entry.median_house_value;
+								subcounty_ocean_proximity += entry.ocean_proximity;
+							}
+						}
+						else
+						{
+							console.log("Need fix:" + event.feature.getGeometry().getType());
+						}
+					});
+
+		        	//document.getElementById('data-value').textContent = subcounty_population.toString();
+		        	document.getElementById('num-of-data').innerHTML = "Number of Data Points: " + entryCount;
+		        	document.getElementById('population-value').innerHTML = "Population: " + subcounty_population;
+		        	document.getElementById('median_income-value').innerHTML = "Median Income: " + (subcounty_median_income/entryCount);
+		        	document.getElementById('median_house-value').innerHTML = "Median House Value: " + (subcounty_median_house_value/entryCount);
+
+
+
+
+		        }); // End of map.data.addListener('click', function(event)
+
+		        // Set mouseover event for each feature.
+		        map.data.addListener('mouseover', function(event) {
+		        	document.getElementById('data-label').textContent = event.feature.getProperty('NAME');
 		        });
 
-		        // https://api.census.gov/data
 			}
 
-			function parseHousingData(evt) {
+			function loadHousingData(evt) {
 
 				const selectedFile = document.getElementById('csv-file').files[0];
 
@@ -347,31 +543,20 @@
 			      header: true,
 			      dynamicTyping: true,
 			      complete: function(results) {
-			        console.log(results);
-			        dataset_housing = results;
-			        var markers = [];
-			        results.data.forEach( function(entry) {
-			        	var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
-
-			        	var MarkerOptions = {
-			        		position: entry_position,
-			        		opacity: 0.5,
-			        		map: map
-			        	};
-			        	var marker = new google.maps.Marker(MarkerOptions);
-
-			        	markers.push(marker);
-			        });
-			        var markerCluster = new MarkerClusterer(map, markers, {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m', zoomOnClick: false });
+			        console.log("Success! Loaded " + selectedFile.name);
+			        dataset_housing = results;			        
 			      } // End of complete: function()
 			    } // End of config
 
 				Papa.parse(selectedFile, config);
+
+				document.getElementById("census-variable").disabled = false;
+				document.getElementById("data-box").style.display = 'block';
 			}
 
 		</script>
 		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCriTc-URJTbKpAu2HUu4LGL5XEX9cYO8M&libraries=visualization&callback=initMap" async defer> </script>
-		<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"> </script>
+		<script src="markerclusterer.js"> </script>
 		<script src="papaparse.min.js"></script>
 	</body>
 </html>
