@@ -40,8 +40,9 @@
 		    #data-box {
 				top: 180px;
 				left: 10px;
-				height: 45px;
-				line-height: 45px;
+				height: 25px;
+				line-height: 25px;
+				text-align: center;
 				display: none;
 		    }
 
@@ -93,6 +94,7 @@
 		</style>
 
 		<input id="btnResetZoom" type="button" value="Reset Zoom">
+		<input id="btnZoomToSC"  type="button" value="Zoom To Santa Cruz">
 		<input id="btnZoomToSJ"  type="button" value="Zoom To San Jose">
 		<input id="btnZoomToSF"  type="button" value="Zoom To San Francisco">
 		<input id="btnZoomToLA"  type="button" value="Zoom To Los Angeles">
@@ -125,12 +127,15 @@
 		<div id="data-box" class="nicebox">
 		  <label id="data-label" for="data-value"></label>
 		  <span id="data-value"></span>
-		  <ul id="county-data-list">
+		  
+		  <ul id="county-data-list" style="background-color: rgba(255, 255, 255, 0.9); text-align: left; padding-right: 30px;">
 		  	<li id="num-of-data">Number of Data Points</li>
 		  	<li id="population-value">Population</li>
 		  	<li id="median_income-value">Median Income</li>
 		  	<li id="median_house-value">Median House Value</li>
 		  </ul>
+
+		  
 		</div>
 
 
@@ -164,7 +169,6 @@
 				var mapOptions = {
 					center: centerOfCali,
 					zoom: ZOOM_OUT,
-					maxZoom: 15,
 					minZoom: ZOOM_OUT,
 					restriction: {
 						latLngBounds: CALIFORNIA_BOUNDS,
@@ -261,7 +265,7 @@
 					var MarkerClustererOptions = {
 						imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m', 
 						zoomOnClick: false, 
-						minimumClusterSize: 4
+						minimumClusterSize: 3
 					};
 					housingCluster = new MarkerClusterer(map, markers, MarkerClustererOptions);
 					console.log("Success! Loaded House Markers");
@@ -421,6 +425,12 @@
 				map.setCenter(centerOfCali);
 				map.setZoom(ZOOM_OUT);
 			}
+			
+			function zoomToSantaCruz() {
+			       var SantaCruz = new google.maps.LatLng(36.971944, -122.026389);
+			       map.setCenter(SantaCruz);
+			       map.setZoom(ZOOM_IN);
+			}
 
 			function zoomToSanJose() {
 			       var SanJose = new google.maps.LatLng(37.333333, -121.9);
@@ -442,6 +452,7 @@
 
 			function startButtonEvents () {
 				document.getElementById('btnResetZoom').addEventListener('click', function(){ resetZoom(); });
+				document.getElementById('btnZoomToSC').addEventListener('click', function(){ zoomToSantaCruz(); });
 				document.getElementById('btnZoomToSJ').addEventListener('click', function(){ zoomToSanJose(); });
 				document.getElementById('btnZoomToSF').addEventListener('click', function(){ zoomToSanFrancisco(); });
 				document.getElementById('btnZoomToLA').addEventListener('click', function(){ zoomToLosAngeles(); });
@@ -517,11 +528,10 @@
 						}
 					});
 
-		        	//document.getElementById('data-value').textContent = subcounty_population.toString();
-		        	document.getElementById('num-of-data').innerHTML = "Number of Data Points: " + entryCount;
-		        	document.getElementById('population-value').innerHTML = "Population: " + subcounty_population;
-		        	document.getElementById('median_income-value').innerHTML = "Median Income: " + (subcounty_median_income/entryCount);
-		        	document.getElementById('median_house-value').innerHTML = "Median House Value: " + (subcounty_median_house_value/entryCount);
+		        	document.getElementById('num-of-data').innerHTML = "Number of Data Points: " + entryCount.toLocaleString();
+		        	document.getElementById('population-value').innerHTML = "Population: " + subcounty_population.toLocaleString();
+		        	document.getElementById('median_income-value').innerHTML = "Median Income: " + (subcounty_median_income/entryCount).toLocaleString();
+		        	document.getElementById('median_house-value').innerHTML = "Median House Value: " + (subcounty_median_house_value/entryCount).toLocaleString();
 
 
 
