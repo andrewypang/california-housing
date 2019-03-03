@@ -40,10 +40,10 @@
 		    #data-box {
 				top: 180px;
 				left: 10px;
-				height: 25px;
-				line-height: 25px;
 				text-align: center;
-				display: none;
+				display: block;
+				width: 360px;
+								border: rgb(229, 0, 50) 3px solid;
 		    }
 
 
@@ -75,8 +75,14 @@
 				line-height: 1.0em;
 		    }
 
-			#data-label { font-size: 14px; font-weight: normal; padding-right: 10px; }
-			#data-value { font-size: 14px; font-weight: bold }
+			#hover-label { 
+				font-size: 14px; 
+				font-weight: bold; 
+				width: 200px;
+				line-height: 20px;
+				display: inline-block;
+			}
+			#hover-value { font-size: 14px; font-weight: bold }
 
 		    #data-caret { 
 		    	margin-left: -5px; 
@@ -85,10 +91,23 @@
 		    	width: 14px
 		    }
 
-/*		    li {
-		    	line-height: 1.5;
-		    	display: none;
-		    }*/
+		    #selected-county {
+		    	overflow: auto;
+		    	max-height:400px;
+		    	border: rgb(229, 0, 50) 3px solid;
+
+		    }
+
+		    .county-stats {
+		    	background-color: rgba(255, 255, 255, 1.0);
+		    	text-align: left;
+		    	padding-right: 30px;
+
+		    }
+
+		    .county {
+		    			    	border: rgb(229, 0, 50) 0px solid;
+		    }
 
 
 		</style>
@@ -98,6 +117,7 @@
 		<input id="btnZoomToSJ"  type="button" value="Zoom To San Jose">
 		<input id="btnZoomToSF"  type="button" value="Zoom To San Francisco">
 		<input id="btnZoomToLA"  type="button" value="Zoom To Los Angeles">
+		<input id="btnUpdateDataDisplay"  type="button" value="Update">
 		<input id="csv-file"     type="file"   name="files" onchange="loadHousingData(this.files)">
 
 
@@ -125,17 +145,10 @@
 		  </div>
 		</div>
 		<div id="data-box" class="nicebox">
-		  <label id="data-label" for="data-value"></label>
-		  <span id="data-value"></span>
-		  
-		  <ul id="county-data-list" style="background-color: rgba(255, 255, 255, 0.9); text-align: left; padding-right: 30px;">
-		  	<li id="num-of-data">Number of Data Points</li>
-		  	<li id="population-value">Population</li>
-		  	<li id="median_income-value">Median Income</li>
-		  	<li id="median_house-value">Median House Value</li>
-		  </ul>
+		  <span id="hover-label"></span>
 
-		  
+		  <div id="selected-county"> </div>
+
 		</div>
 
 
@@ -402,9 +415,6 @@
 					// update and display the legend
 					document.getElementById('census-min').textContent = dataMin.toLocaleString();
 					document.getElementById('census-max').textContent = dataMax.toLocaleString();
-					//document.getElementById('data-label').textContent = 
-					//console.log(dataLayer);
-
 
 					document.getElementById('data-box').style.display = 'block';
 				}
@@ -450,12 +460,101 @@
 			       map.setZoom(ZOOM_IN);
 			}
 
+			function updateDataDisplay() {
+
+				var list = document.getElementById("selected-county");
+				while (list.firstChild)
+				{
+				    list.removeChild(list.firstChild);
+				}
+
+
+		     	//Get headers
+		     	var subcounty_housing_median_age = subcounty_total_rooms = subcounty_total_bedrooms = subcounty_population = subcounty_households = subcounty_median_income = subcounty_median_house_value = subcounty_ocean_proximity = 0;
+	         	var entryCount = 0;
+				map.data.forEach(function(feature) {
+					if(feature.getProperty('isColorful'))
+					{
+						console.log(feature.getProperty('NAME') + " is selected");
+
+						if(feature.getGeometry().getType() === 'Polygon')
+						{
+							var polyPath = feature.getGeometry().getAt(0).getArray();
+	        				var poly = new google.maps.Polygon({
+	        					paths: polyPath
+	        				});
+
+	        				dataset_housing.data.forEach( function(entry) {
+
+	        					var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
+
+	        					if(google.maps.geometry.poly.containsLocation(entry_position, poly))
+	        					{
+	        						entryCount += 1;
+	        						subcounty_housing_median_age += entry.housing_median_age; 
+	        						subcounty_total_rooms += entry.total_rooms;
+	        						subcounty_total_bedrooms += entry.total_bedrooms;
+	        						subcounty_population += entry.population;
+	        						subcounty_households += entry.households;
+	        						subcounty_median_income += entry.median_income;
+	        						subcounty_median_house_value += entry.median_house_value;
+	        						subcounty_ocean_proximity += entry.ocean_proximity;
+	        					}
+
+	        				});
+
+	        				var countyList = document.getElementById("selected-county");
+
+	        				var county = document.createElement('div');
+	        				county.setAttribute("class", "county");
+
+	        				// Create the County Name label
+	        				var countyName = document.createElement('label');
+	        				countyName.appendChild( document.createTextNode(feature.getProperty('NAME')) );
+	        				county.appendChild(countyName);
+
+	        				// Create the County Stats list
+	        				var countyStats = document.createElement('ul');
+	        				countyStats.setAttribute("class", "county-stats");
+
+	        				var li = document.createElement("li");
+	        				li.appendChild(document.createTextNode( "Number of Data Points: " + entryCount.toLocaleString() ));
+	        				countyStats.appendChild(li);
+
+	        				var li = document.createElement("li");
+	        				li.appendChild(document.createTextNode( "Population: " + subcounty_population.toLocaleString() ));
+	        				countyStats.appendChild(li);
+
+	        				var li = document.createElement("li");
+	        				li.appendChild(document.createTextNode( "Median Income: " + ((subcounty_median_income/entryCount)*10000).toLocaleString() ));
+	        				countyStats.appendChild(li);
+
+	        				var li = document.createElement("li");
+	        				li.appendChild(document.createTextNode( "Median House Value: " + (subcounty_median_house_value/entryCount).toLocaleString() ));
+	        				countyStats.appendChild(li);
+
+	        				county.appendChild(countyStats);
+
+	        				countyList.appendChild(county);
+						}
+		     			else
+		     			{
+		     				console.log("Need fix:" + event.feature.getGeometry().getType());
+		     			}
+
+					}
+				});
+			       
+			}
+
 			function startButtonEvents () {
 				document.getElementById('btnResetZoom').addEventListener('click', function(){ resetZoom(); });
 				document.getElementById('btnZoomToSC').addEventListener('click', function(){ zoomToSantaCruz(); });
 				document.getElementById('btnZoomToSJ').addEventListener('click', function(){ zoomToSanJose(); });
 				document.getElementById('btnZoomToSF').addEventListener('click', function(){ zoomToSanFrancisco(); });
 				document.getElementById('btnZoomToLA').addEventListener('click', function(){ zoomToLosAngeles(); });
+				document.getElementById('btnUpdateDataDisplay').addEventListener('click', function(){ updateDataDisplay(); });
+				
 			}
 
 			startButtonEvents();
@@ -494,53 +593,15 @@
 		        map.data.addListener('click', function(event) {
 		        	event.feature.setProperty('isColorful', !(event.feature.getProperty('isColorful')) );
 
-		        	// Get headers
-		        	var subcounty_housing_median_age = subcounty_total_rooms = subcounty_total_bedrooms = subcounty_population = subcounty_households = subcounty_median_income = subcounty_median_house_value = subcounty_ocean_proximity = 0;
-
-		        	// Get info:: county-subdivision.geojson <=> housing.csv
-		        	var entryCount = 0;
-		        	dataset_housing.data.forEach( function(entry) {
-						var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
-
-						if(event.feature.getGeometry().getType() === 'Polygon')
-						{
-							var polyPath = event.feature.getGeometry().getAt(0).getArray();
-							var poly = new google.maps.Polygon({
-								paths: polyPath
-							});
-
-							if(google.maps.geometry.poly.containsLocation(entry_position, poly))
-							{
-								entryCount += 1;
-								subcounty_housing_median_age += entry.housing_median_age; 
-								subcounty_total_rooms += entry.total_rooms;
-								subcounty_total_bedrooms += entry.total_bedrooms;
-								subcounty_population += entry.population;
-								subcounty_households += entry.households;
-								subcounty_median_income += entry.median_income;
-								subcounty_median_house_value += entry.median_house_value;
-								subcounty_ocean_proximity += entry.ocean_proximity;
-							}
-						}
-						else
-						{
-							console.log("Need fix:" + event.feature.getGeometry().getType());
-						}
-					});
-
-		        	document.getElementById('num-of-data').innerHTML = "Number of Data Points: " + entryCount.toLocaleString();
-		        	document.getElementById('population-value').innerHTML = "Population: " + subcounty_population.toLocaleString();
-		        	document.getElementById('median_income-value').innerHTML = "Median Income: " + (subcounty_median_income/entryCount).toLocaleString();
-		        	document.getElementById('median_house-value').innerHTML = "Median House Value: " + (subcounty_median_house_value/entryCount).toLocaleString();
-
-
-
-
 		        }); // End of map.data.addListener('click', function(event)
 
 		        // Set mouseover event for each feature.
 		        map.data.addListener('mouseover', function(event) {
-		        	document.getElementById('data-label').textContent = event.feature.getProperty('NAME');
+		        	document.getElementById('hover-label').textContent = event.feature.getProperty('NAME');
+		        });
+
+		        map.data.addListener('mouseout', function(event) {
+		        	document.getElementById('hover-label').textContent = "";
 		        });
 
 			}
