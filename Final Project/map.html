@@ -43,9 +43,10 @@
 				text-align: center;
 				display: block;
 				width: 360px;
-								border: rgb(229, 0, 50) 3px solid;
-		    }
+				height: 50px;
+				border: rgb(229, 0, 50) 0px solid;
 
+		    }
 
 		    #census-variable {
 	            width: 360px;
@@ -79,10 +80,12 @@
 				font-size: 14px; 
 				font-weight: bold; 
 				width: 200px;
-				line-height: 20px;
-				display: inline-block;
+				height: 35px;
+				display: block;
 			}
-			#hover-value { font-size: 14px; font-weight: bold }
+			#hover-value { 
+				font-size: 14px; 
+				font-weight: bold }
 
 		    #data-caret { 
 		    	margin-left: -5px; 
@@ -92,14 +95,16 @@
 		    }
 
 		    #selected-county {
-		    	overflow: auto;
+		    	display: block;
+		    	overflow-y: auto;
 		    	max-height:400px;
-		    	border: rgb(229, 0, 50) 3px solid;
+		    	width: 360px;
+		    	background-color: rgba(255, 255, 255, 0.9);
+		    					border: rgb(229, 0, 50) 0px solid;
 
 		    }
 
 		    .county-stats {
-		    	background-color: rgba(255, 255, 255, 1.0);
 		    	text-align: left;
 		    	padding-right: 30px;
 
@@ -107,6 +112,10 @@
 
 		    .county {
 		    			    	border: rgb(229, 0, 50) 0px solid;
+		    }
+
+		    .housing-entry {
+		    	padding-right: 20px;
 		    }
 
 
@@ -145,7 +154,7 @@
 		  </div>
 		</div>
 		<div id="data-box" class="nicebox">
-		  <span id="hover-label"></span>
+		  <h3 id="hover-label"></h3>
 
 		  <div id="selected-county"> </div>
 
@@ -224,8 +233,8 @@
 				map.data.forEach(function(row){
 					row.setProperty('census_variable', undefined);
 				});
-				document.getElementById('data-box').style.display = 'none';
-				document.getElementById('data-caret').style.display = 'none';
+				//document.getElementById('data-box').style.display = 'none';
+				//document.getElementById('data-caret').style.display = 'none';
 
 				//Clear markers and heatmap
 				if(housingCluster != null)
@@ -262,6 +271,8 @@
 				}
 				else if(variable == "HouseMarkers")
 				{
+					var startTemp = new Date();
+
 					var markers = [];
 					dataset_housing.data.forEach( function(entry) {
 						var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
@@ -269,19 +280,66 @@
 						var MarkerOptions = {
 							position: entry_position,
 							opacity: 0.5,
+							clickable: true,
 							map: map
 						};
+
+						// var contentString = '<div class="housing-entry">' +
+						// 					'<ul>' + 
+						// 						'<li>' + 'Coordinates: (' + entry.latitude + ',' + entry.longitude + ')' + '</li>' +
+						// 						'<li>' + 'Housing Median Age: '+ (entry.housing_median_age).toLocaleString() + '</li>' +
+						// 						'<li>' + 'Total Rooms: ' + (entry.total_rooms).toLocaleString() + '</li>' +
+						// 						'<li>' + 'Total Bedrooms: ' +  (entry.total_bedrooms == null ? 'N/A' : (entry.total_bedrooms).toLocaleString()) + '</li>' +
+						// 						'<li>' + 'Population: ' + (entry.population).toLocaleString() + '</li>' +
+						// 						'<li>' + 'Households: ' + (entry.households).toLocaleString() + '</li>' +
+						// 						'<li>' + 'Median Income: ' + (entry.median_income*10000).toLocaleString('en-GB', { style: 'currency', currency: 'USD', currencyDisplay: 'symbol'}) + '</li>' +
+						// 						'<li>' + 'Median House Value: ' + (entry.median_house_value).toLocaleString('en-GB', { style: 'currency', currency: 'USD', currencyDisplay: 'symbol'}) + '</li>' +
+						// 						'<li>' + 'Ocean Proximity: '+ entry.ocean_proximity + '</li>' +
+						// 					'</ul>' +
+				  //       				    '</div>';
+
+				  		var numberFormatter = new Intl.NumberFormat();
+				  		var moneyFormatter = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD', currencyDisplay: 'symbol'});
+
+				  		var contentString = '<div class="housing-entry">' +
+				  							'<ul>' + 
+				  								'<li>' + 'Coordinates: (' + entry.latitude + ',' + entry.longitude + ')' + '</li>' +
+				  								'<li>' + 'Housing Median Age: '+ numberFormatter.format(entry.housing_median_age) + '</li>' +
+				  								'<li>' + 'Total Rooms: ' + numberFormatter.format(entry.total_rooms) + '</li>' +
+				  								'<li>' + 'Total Bedrooms: ' +  (entry.total_bedrooms == null ? 'N/A' : numberFormatter.format(entry.total_bedrooms)) + '</li>' +
+				  								'<li>' + 'Population: ' + numberFormatter.format(entry.population) + '</li>' +
+				  								'<li>' + 'Households: ' + numberFormatter.format(entry.households) + '</li>' +
+				  								'<li>' + 'Median Income: ' + moneyFormatter.format(entry.median_income*10000) + '</li>' +
+				  								'<li>' + 'Median House Value: ' + moneyFormatter.format(entry.median_house_value) + '</li>' +
+				  								'<li>' + 'Ocean Proximity: '+ entry.ocean_proximity + '</li>' +
+				  							'</ul>' +
+				          				    '</div>';
+
+				        var infowindow = new google.maps.InfoWindow({
+							content: contentString,
+							maxWidth: 350
+				        });
+
 						var marker = new google.maps.Marker(MarkerOptions);
+
+						marker.addListener('click', function() {
+						  infowindow.open(map, marker);
+						});
 
 						markers.push(marker);
 					});
+
 					var MarkerClustererOptions = {
 						imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m', 
 						zoomOnClick: false, 
 						minimumClusterSize: 3
 					};
+
 					housingCluster = new MarkerClusterer(map, markers, MarkerClustererOptions);
 					console.log("Success! Loaded House Markers");
+
+					var endTemp   = new Date();
+					console.log("Secs:"+(endTemp.getTime() - startTemp.getTime()) / 1000);
 				}
 				else if(variable == "HeatmapWithPopulation")
 				{
@@ -416,14 +474,14 @@
 					document.getElementById('census-min').textContent = dataMin.toLocaleString();
 					document.getElementById('census-max').textContent = dataMax.toLocaleString();
 
-					document.getElementById('data-box').style.display = 'block';
+					//document.getElementById('data-box').style.display = 'block';
 				}
 				else
 				{
 					// reset back to default min & max
 					document.getElementById('census-min').textContent = "min";
 					document.getElementById('census-max').textContent = "max";
-					document.getElementById('data-box').style.display = 'none';
+					//document.getElementById('data-box').style.display = 'none';
 				}
 
 
@@ -509,7 +567,8 @@
 	        				county.setAttribute("class", "county");
 
 	        				// Create the County Name label
-	        				var countyName = document.createElement('label');
+	        				var countyName = document.createElement('h4');
+	        				countyName.style.height = "20px"; 
 	        				countyName.appendChild( document.createTextNode(feature.getProperty('NAME')) );
 	        				county.appendChild(countyName);
 
