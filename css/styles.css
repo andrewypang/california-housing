@@ -1,0 +1,110 @@
+html, body, #mapDiv {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.nicebox {
+	position: absolute;
+	text-align: center;
+	font-family: "Roboto", "Arial", sans-serif;
+	font-size: 14px;
+	z-index: 5;
+	box-shadow: 0 4px 6px -4px #333;
+	padding: 5px 10px;
+	background: rgb(255,255,255);
+	background: linear-gradient(to bottom,rgba(255,255,255,1) 0%,rgba(245,245,245,0.9) 100%);
+	border: rgb(229, 229, 229) 1px solid;
+
+}
+
+#controls {
+	top: 110px;
+	left: 10px;
+	width: 360px;
+	height: auto;
+}
+
+#data-box {
+	top: 250px;
+	left: 10px;
+	text-align: center;
+	display: block;
+	height: 50px;
+
+}
+
+#btnUpdateDataDisplay {
+	height: 20px;
+	margin-top: 10px;
+}
+
+#census-variable {
+    width: 360px;
+    height: 20px;
+}
+
+#legend { 
+	display: flex; 
+	display: -webkit-box; 
+	padding-top: 7px 
+}
+
+.color-key {
+	background: linear-gradient(to left,
+		hsl(5, 69%, 54%) 0%,
+		hsl(29, 71%, 51%) 17%,
+		hsl(54, 74%, 47%) 33%,
+		hsl(78, 76%, 44%) 50%,
+		hsl(102, 78%, 41%) 67%,
+		hsl(127, 81%, 37%) 83%,
+		hsl(151, 83%, 34%) 100%);
+	flex: 1;
+	-webkit-box-flex: 1;
+	margin: 0 5px;
+	text-align: left;
+	font-size: 1.0em;
+	line-height: 1.0em;
+}
+
+#hover-label { 
+	font-size: 14px; 
+	font-weight: bold; 
+	width: 200px;
+	height: 35px;
+	display: block;
+}
+#hover-value { 
+	font-size: 14px; 
+	font-weight: bold }
+
+#data-caret { 
+	margin-left: -5px; 
+	display: none; 
+	font-size: 14px; 
+	width: 14px
+}
+
+#selected-county {
+	display: block;
+	overflow-y: auto;
+	max-height:400px;
+	background-color: rgba(255, 255, 255, 0.9);
+					border: rgb(229, 0, 50) 0px solid;
+
+}
+
+.county-stats {
+	text-align: left;
+	padding-right: 30px;
+
+}
+
+.county {
+			    	border: rgb(229, 0, 50) 0px solid;
+}
+
+.housing-entry {
+	padding-right: 20px;
+}
