@@ -124,11 +124,11 @@
 
 		</style>
 
-		<input id="btnResetZoom" type="button" value="Reset Zoom">
+		<!-- <input id="btnResetZoom" type="button" value="Reset Zoom">
 		<input id="btnZoomToSC"  type="button" value="Zoom To Santa Cruz">
 		<input id="btnZoomToSJ"  type="button" value="Zoom To San Jose">
 		<input id="btnZoomToSF"  type="button" value="Zoom To San Francisco">
-		<input id="btnZoomToLA"  type="button" value="Zoom To Los Angeles">
+		<input id="btnZoomToLA"  type="button" value="Zoom To Los Angeles"> -->
 
 
 	</head>
@@ -280,6 +280,8 @@
 				}
 				else if(variable == "HouseMarkers")
 				{
+					//NEED TO CHANGE HOUSE MARKERS TO COUNTY LEVEL
+
 					var startTemp = new Date();
 
 					var markers = [];
@@ -292,20 +294,6 @@
 							clickable: true,
 							map: map
 						};
-
-						// var contentString = '<div class="housing-entry">' +
-						// 					'<ul>' + 
-						// 						'<li>' + 'Coordinates: (' + entry.latitude + ',' + entry.longitude + ')' + '</li>' +
-						// 						'<li>' + 'Housing Median Age: '+ (entry.housing_median_age).toLocaleString() + '</li>' +
-						// 						'<li>' + 'Total Rooms: ' + (entry.total_rooms).toLocaleString() + '</li>' +
-						// 						'<li>' + 'Total Bedrooms: ' +  (entry.total_bedrooms == null ? 'N/A' : (entry.total_bedrooms).toLocaleString()) + '</li>' +
-						// 						'<li>' + 'Population: ' + (entry.population).toLocaleString() + '</li>' +
-						// 						'<li>' + 'Households: ' + (entry.households).toLocaleString() + '</li>' +
-						// 						'<li>' + 'Median Income: ' + (entry.median_income*10000).toLocaleString('en-GB', { style: 'currency', currency: 'USD', currencyDisplay: 'symbol'}) + '</li>' +
-						// 						'<li>' + 'Median House Value: ' + (entry.median_house_value).toLocaleString('en-GB', { style: 'currency', currency: 'USD', currencyDisplay: 'symbol'}) + '</li>' +
-						// 						'<li>' + 'Ocean Proximity: '+ entry.ocean_proximity + '</li>' +
-						// 					'</ul>' +
-				  //       				    '</div>';
 
 				  		var numberFormatter = new Intl.NumberFormat();
 				  		var moneyFormatter = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD', currencyDisplay: 'symbol'});
@@ -539,11 +527,14 @@
 		     	//Get headers
 		     	var subcounty_housing_median_age = subcounty_total_rooms = subcounty_total_bedrooms = subcounty_population = subcounty_households = subcounty_median_income = subcounty_median_house_value = subcounty_ocean_proximity = 0;
 	         	var entryCount = 0;
+
+	         	// SLOW AND COSTLY (1)
 				map.data.forEach(function(feature) {
 					if(feature.getProperty('isColorful'))
 					{
 						console.log(feature.getProperty('NAME') + " is selected");
 
+						// Fix else if not polygon ie multipolygon
 						if(feature.getGeometry().getType() === 'Polygon')
 						{
 							var polyPath = feature.getGeometry().getAt(0).getArray();
@@ -551,6 +542,7 @@
 	        					paths: polyPath
 	        				});
 
+	        				// SLOW AND COSTLY (2)
 	        				dataset_housing.forEach( function(entry) {
 
 	        					var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
@@ -616,11 +608,11 @@
 			}
 
 			function startButtonEvents () {
-				document.getElementById('btnResetZoom').addEventListener('click', function(){ resetZoom(); });
-				document.getElementById('btnZoomToSC').addEventListener('click', function(){ zoomToSantaCruz(); });
-				document.getElementById('btnZoomToSJ').addEventListener('click', function(){ zoomToSanJose(); });
-				document.getElementById('btnZoomToSF').addEventListener('click', function(){ zoomToSanFrancisco(); });
-				document.getElementById('btnZoomToLA').addEventListener('click', function(){ zoomToLosAngeles(); });
+				// document.getElementById('btnResetZoom').addEventListener('click', function(){ resetZoom(); });
+				// document.getElementById('btnZoomToSC').addEventListener('click', function(){ zoomToSantaCruz(); });
+				// document.getElementById('btnZoomToSJ').addEventListener('click', function(){ zoomToSanJose(); });
+				// document.getElementById('btnZoomToSF').addEventListener('click', function(){ zoomToSanFrancisco(); });
+				// document.getElementById('btnZoomToLA').addEventListener('click', function(){ zoomToLosAngeles(); });
 				document.getElementById('btnUpdateDataDisplay').addEventListener('click', function(){ updateDataDisplay(); });
 				
 			}
