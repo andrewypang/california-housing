@@ -22,32 +22,63 @@
 
 		<div id="mapDiv"></div>
 
-		<div id="controls" class="nicebox">
-			<h3 style="text-align: left; height: 20px; margin-top: 10px; margin-bottom: 10px;">Select Overlay Display</h2>
-		  <div>
-		  <select disabled id="census-variable">
-		  	<option value="None" selected="selected">None</option>
-		    <option value="HouseMarkers">House Markers</option>
-		    <option value="HeatmapWithPopulation">Heatmap with Population</option>
-		    <option value="HeatmapWithMedianIncome">Heatmap with Median-Income</option>
-		    <option value="HeatmapWithMedianHouseValue">Heatmap with Median House Value</option>
-		  </select>
-		  </div>
-		  <div id="legend">
-		    <div id="census-min">min</div>
-		    <div class="color-key"><span id="data-caret">◆</span></div>
-		    <div id="census-max">max</div>
-		  </div>
-
-		  <input id="btnUpdateDataDisplay"  type="button" value="Display Stats for Selected County/Counties">
-
-		</div>
 		<div id="data-box" class="nicebox">
-		  <h3 id="hover-label"></h3>
-
-		  <div id="selected-county"> </div>
+			<h3 id="hover-label"></h3>
 
 		</div>
+
+		<div class="tabs">
+			<ul class="tab-list">
+				<li class="active"><a class="tab-control" href="#tab-1">State-Level</a></li>
+				<li><a class="tab-control" href="#tab-2">County-Level</a></li>
+			</ul>
+
+			<!-- TAB 1 -->
+			<div class="tab-panel active" id="tab-1">
+				<form action="">
+					<p>Data to Consider:
+						<br />
+						<input type="checkbox" name="selected_data_col" value="housing_age">Housing Age
+						<input type="checkbox" name="selected_data_col" value="population">Population
+						<br />
+						<input type="checkbox" name="selected_data_col" value="income">Income
+						<input type="checkbox" name="selected_data_col" value="house_value">House Value
+					</p>
+				</form>
+				<div id="controls" class="">
+					<p>Select Overlay Display</p>
+				  <div>
+					  <select disabled id="census-variable">
+					  	<option value="None" selected="selected">None</option>
+					    <option value="HouseMarkers">House Markers</option>
+					    <option value="HeatmapWithPopulation">Heatmap with Population</option>
+					    <option value="HeatmapWithMedianIncome">Heatmap with Median-Income</option>
+					    <option value="HeatmapWithMedianHouseValue">Heatmap with Median House Value</option>
+					  </select>
+				  </div>
+				</div>
+			</div>
+
+			<!-- TAB 2 -->
+			<div  id="tab-2" class="tab-panel">
+				<p>Selected County(s):</p>
+				<div id="selected-county"> </div>
+				<input id="btnUpdateDataDisplay"  type="button" value="Display Stats">
+				<div id="chart">
+					
+				</div>
+			</div>
+
+
+		</div>
+
+		<div id="legend">
+		  <div id="census-min">min</div>
+		  <div class="color-key"><span id="data-caret">◆</span></div>
+		  <div id="census-max">max</div>
+		</div>
+
+
 
 		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCriTc-URJTbKpAu2HUu4LGL5XEX9cYO8M&libraries=visualization&callback=initMap" async defer> </script>
 		<script src="lib/markerclusterer.js"> </script>
