@@ -7,7 +7,13 @@ var ZOOM_IN = 9;
 
 //Defining map as a global variable to access from other functions
 var map;
-var dataset_housing = null;
+var dataset_housing = {
+	data: null,
+	analyze: {
+		maxVales: null,
+		minValues: null
+	}
+};
 var housingCluster = null;
 var heatmap = null;
 var dataLayer = [];
@@ -76,9 +82,73 @@ function initMap(){
 
 	parseGeoJSON();
 
-	$.getJSON("datasets/housing.json", function(json) {
-	    console.log(json); // this will show the info it in firebug console
-	    dataset_housing = json;
+	// Read in housing data from JSON file
+	$.getJSON("datasets/housing.json", function(raw_json) {
+	    //console.log(json); // this will show the info it in firebug console
+	    //dataset_housing = json;
+	    var tempHousingArrayHolder = [];
+	    var maxValues = {
+	    	"longitude": -Number.MAX_VALUE,
+    	    "latitude": -Number.MAX_VALUE,
+    	    "housing_median_age": -Number.MAX_VALUE,
+    	    "total_rooms": -Number.MAX_VALUE,
+    	    "total_bedrooms": -Number.MAX_VALUE,
+    	    "population": -Number.MAX_VALUE,
+    	    "households": -Number.MAX_VALUE,
+    	    "median_income": -Number.MAX_VALUE,
+    	    "median_house_value": -Number.MAX_VALUE,
+    	    "ocean_proximity": -Number.MAX_VALUE
+	    }
+	    var minValues = {
+	    	"longitude": Number.MAX_VALUE,
+    	    "latitude": Number.MAX_VALUE,
+    	    "housing_median_age": Number.MAX_VALUE,
+    	    "total_rooms": Number.MAX_VALUE,
+    	    "total_bedrooms": Number.MAX_VALUE,
+    	    "population": Number.MAX_VALUE,
+    	    "households": Number.MAX_VALUE,
+    	    "median_income": Number.MAX_VALUE,
+    	    "median_house_value": Number.MAX_VALUE,
+    	    "ocean_proximity": Number.MAX_VALUE
+	    }
+
+	    var headers = [ "longitude", "latitude", "housing_median_age", "total_rooms", "total_bedrooms", "population", "households", "median_income", "median_house_value", "ocean_proximity"];
+
+	    raw_json.forEach(function(entry) {
+	    	// Check if any are empty
+	    	// else insert into dataset
+	    	var pass = true;
+	    	for(var i = 0; i < headers.length; i++)
+	    	{
+	    		if(!entry[headers[i]])
+	    		{
+					pass = false;
+	    		}
+	    	}
+	    	if(pass)
+	    	{
+	    		tempHousingArrayHolder.push(entry);
+
+	    		// Find max and min
+	    		for(var i = 0; i < headers.length; i++)
+	    		{
+	    			if(entry[headers[i]] > maxValues[headers[i]])
+	    			{
+	    				maxValues[headers[i]] = entry[headers[i]];
+	    			}
+	    			if(entry[headers[i]] < minValues[headers[i]])
+	    			{
+	    				minValues[headers[i]] = entry[headers[i]];
+	    			}
+	    		}
+	    	}
+	    });
+
+	    //Enter into dataset_housing
+	    dataset_housing['data'] = tempHousingArrayHolder;
+	    dataset_housing['analyze']['maxValues'] = maxValues;
+	    dataset_housing['analyze']['minValues'] = minValues;
+
 		document.getElementById("overlay_style").disabled = false;
 	});
 
@@ -193,76 +263,6 @@ function loadCensusData(variable) {
 
 		var endTemp   = new Date();
 		console.log("Secs:"+(endTemp.getTime() - startTemp.getTime()) / 1000);
-	}
-	else if(variable == "HeatmapWithPopulation")
-	{
-		
-	}
-	else if(variable == "HeatmapWithMedianIncome")
-	{
-		// var heatmapData = [];
-		// dataset_housing.forEach( function(entry)
-		// {
-		// 	var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
-
-		// 	var weightedLoc = {
-		// 	    location: entry_position,
-		// 	    weight: entry.median_income
-		// 	};
-
-		// 	heatmapData.push(weightedLoc);
-
-		// 	if(entry.median_income < dataMin)
-		// 	{
-		// 		dataMin = entry.median_income;
-		// 	}
-		// 	if(entry.median_income > dataMax)
-		// 	{
-		// 		dataMax = entry.median_income;
-		// 	}
-		// });
-
-		// heatmap = new google.maps.visualization.HeatmapLayer({
-		// 	data: heatmapData,
-		// 	dissipating: true,
-		// 	radius: 20,
-		// 	map: map
-		// });
-
-		// console.log("Success! Loaded Heatmap With Median-Income");
-	}
-	else if(variable == "HeatmapWithMedianHouseValue")
-	{
-		// var heatmapData = [];
-		// dataset_housing.forEach( function(entry)
-		// {
-		// 	var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
-
-		// 	var weightedLoc = {
-		// 	    location: entry_position,
-		// 	    weight: entry.median_house_value
-		// 	};
-
-		// 	heatmapData.push(weightedLoc);
-
-		// 	if(entry.median_house_value < dataMin)
-		// 	{
-		// 		dataMin = entry.median_house_value;
-		// 	}
-		// 	if(entry.median_house_value > dataMax)
-		// 	{
-		// 		dataMax = entry.median_house_value;
-		// 	}
-		// });
-
-		// heatmap = new google.maps.visualization.HeatmapLayer({
-		// 	data: heatmapData,
-		// 	dissipating: true,
-		// 	radius: 20,
-		// 	map: map
-		// });
-
-		// console.log("Success! Loaded Heatmap With Median House Value");
 	}
 
 	// if( dataMin != Number.MAX_VALUE || dataMax != -Number.MAX_VALUE)
@@ -498,7 +498,9 @@ function updateStateLevelDisplay() {
 		}
 		else if(document.getElementById("overlay_style").value == "heatmap_2")
 		{
-			
+			var low_color = document.getElementById("color-key").style.backgroundImage;
+
+			console.log(low_color);
 		}
 		
 
