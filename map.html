@@ -35,28 +35,34 @@
 
 			<!-- TAB 1 -->
 			<div class="tab-panel active" id="tab-1">
-				<form action="">
+				<form id="selected_data_form" action="" method="get">
 					<p>Data to Consider:
 						<br />
-						<input type="checkbox" name="selected_data_col" value="housing_age">Housing Age
-						<input type="checkbox" name="selected_data_col" value="population">Population
+						<input type="checkbox" name="selected_data" value="housing_median_age">Housing Median Age
+						<input type="checkbox" name="selected_data" value="population">Population
 						<br />
-						<input type="checkbox" name="selected_data_col" value="income">Income
-						<input type="checkbox" name="selected_data_col" value="house_value">House Value
+						<input type="checkbox" name="selected_data" value="median_income">Median Income
+						<input type="checkbox" name="selected_data" value="median_house_value">Median House Value
 					</p>
 				</form>
-				<div id="controls" class="">
-					<p>Select Overlay Display</p>
+				<div id="overlay_select" class="">
+					<p>Select Overlay Style:</p>
 				  <div>
-					  <select disabled id="census-variable">
+					  <select disabled id="overlay_style">
 					  	<option value="None" selected="selected">None</option>
-					    <option value="HouseMarkers">House Markers</option>
+					    <option value="heatmap_1">Heatmap 1</option>
+					    <option value="heatmap_2">Heatmap 2</option>
+
+					    <!-- <option value="HouseMarkers">House Markers</option>
 					    <option value="HeatmapWithPopulation">Heatmap with Population</option>
 					    <option value="HeatmapWithMedianIncome">Heatmap with Median-Income</option>
-					    <option value="HeatmapWithMedianHouseValue">Heatmap with Median House Value</option>
+					    <option value="HeatmapWithMedianHouseValue">Heatmap with Median House Value</option> -->
 					  </select>
 				  </div>
 				</div>
+
+				<input id="btnUpdateStateLevelDisplay"  type="button" value="Go!">
+
 			</div>
 
 			<!-- TAB 2 -->

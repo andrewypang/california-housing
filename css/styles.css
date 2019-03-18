@@ -82,7 +82,7 @@ html, body {
 
 }
 
-#controls {
+#overlay_select {
 	/*top: 110px;
 	left: 10px;
 	width: 360px;
@@ -103,7 +103,7 @@ html, body {
 	margin-top: 10px;
 }
 
-#census-variable {
+#overlay_style {
     width: 360px;
     height: 20px;
 }

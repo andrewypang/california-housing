@@ -64,11 +64,11 @@ function initMap(){
 
 
 	// wire up the button
-    var selectBox = document.getElementById('census-variable');
-    google.maps.event.addDomListener(selectBox, 'change', function() {
-        clearCensusData();
-        loadCensusData(selectBox.options[selectBox.selectedIndex].value);
-    });
+    var selectBox = document.getElementById('overlay_style');
+    // google.maps.event.addDomListener(selectBox, 'change', function() {
+    //     clearCensusData();
+    //     loadCensusData(selectBox.options[selectBox.selectedIndex].value);
+    // });
 
     google.maps.event.addDomListener(selectBox, 'zoom_changed', function() {
 
@@ -79,7 +79,7 @@ function initMap(){
 	$.getJSON("datasets/housing.json", function(json) {
 	    console.log(json); // this will show the info it in firebug console
 	    dataset_housing = json;
-		document.getElementById("census-variable").disabled = false;
+		document.getElementById("overlay_style").disabled = false;
 	});
 
 	$(document).ready()
@@ -196,146 +196,90 @@ function loadCensusData(variable) {
 	}
 	else if(variable == "HeatmapWithPopulation")
 	{
-		var heatmapData = [];
-		var dataMinMarker;
-		var dataMaxMarker;
-		var dataMinLocation;
-		var dataMaxLocation;
-		var dataMinMarkerOptions;
-		var dataMaxMarkerOptions;
-
-		dataset_housing.forEach( function(entry)
-		{
-			var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
-
-			var weightedLoc = {
-			    location: entry_position,
-			    weight: entry.population
-			};
-
-			heatmapData.push(weightedLoc);
-
-			// Final Min and Max
-			if(entry.population < dataMin)
-			{
-				dataMin = entry.population;
-				dataMinLocation = new google.maps.LatLng(entry.latitude, entry.longitude);
-				dataMinMarkerOptions = {
-					position: dataMinLocation,
-					opacity: 0.7,
-					icon: { url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png" },
-					map: map
-				};
-			}
-			if(entry.population > dataMax)
-			{
-				dataMax = entry.population;
-				dataMaxLocation = new google.maps.LatLng(entry.latitude, entry.longitude);
-				dataMaxMarkerOptions = {
-					position: dataMaxLocation,
-					opacity: 0.7,
-					icon: { url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" },
-					map: map
-				};
-			}
-		});
-
-		heatmap = new google.maps.visualization.HeatmapLayer({
-			data: heatmapData,
-			dissipating: true,
-			radius: 20,
-			map: map
-		});
-
-		dataMinMarker = new google.maps.Marker(dataMinMarkerOptions);
-		dataMaxMarker = new google.maps.Marker(dataMaxMarkerOptions);
-		dataLayer.push(dataMinMarker);
-		dataLayer.push(dataMaxMarker);
-
-		console.log("Success! Loaded Heatmap With Population");
+		
 	}
 	else if(variable == "HeatmapWithMedianIncome")
 	{
-		var heatmapData = [];
-		dataset_housing.forEach( function(entry)
-		{
-			var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
+		// var heatmapData = [];
+		// dataset_housing.forEach( function(entry)
+		// {
+		// 	var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
 
-			var weightedLoc = {
-			    location: entry_position,
-			    weight: entry.median_income
-			};
+		// 	var weightedLoc = {
+		// 	    location: entry_position,
+		// 	    weight: entry.median_income
+		// 	};
 
-			heatmapData.push(weightedLoc);
+		// 	heatmapData.push(weightedLoc);
 
-			if(entry.median_income < dataMin)
-			{
-				dataMin = entry.median_income;
-			}
-			if(entry.median_income > dataMax)
-			{
-				dataMax = entry.median_income;
-			}
-		});
+		// 	if(entry.median_income < dataMin)
+		// 	{
+		// 		dataMin = entry.median_income;
+		// 	}
+		// 	if(entry.median_income > dataMax)
+		// 	{
+		// 		dataMax = entry.median_income;
+		// 	}
+		// });
 
-		heatmap = new google.maps.visualization.HeatmapLayer({
-			data: heatmapData,
-			dissipating: true,
-			radius: 20,
-			map: map
-		});
+		// heatmap = new google.maps.visualization.HeatmapLayer({
+		// 	data: heatmapData,
+		// 	dissipating: true,
+		// 	radius: 20,
+		// 	map: map
+		// });
 
-		console.log("Success! Loaded Heatmap With Median-Income");
+		// console.log("Success! Loaded Heatmap With Median-Income");
 	}
 	else if(variable == "HeatmapWithMedianHouseValue")
 	{
-		var heatmapData = [];
-		dataset_housing.forEach( function(entry)
-		{
-			var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
+		// var heatmapData = [];
+		// dataset_housing.forEach( function(entry)
+		// {
+		// 	var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
 
-			var weightedLoc = {
-			    location: entry_position,
-			    weight: entry.median_house_value
-			};
+		// 	var weightedLoc = {
+		// 	    location: entry_position,
+		// 	    weight: entry.median_house_value
+		// 	};
 
-			heatmapData.push(weightedLoc);
+		// 	heatmapData.push(weightedLoc);
 
-			if(entry.median_house_value < dataMin)
-			{
-				dataMin = entry.median_house_value;
-			}
-			if(entry.median_house_value > dataMax)
-			{
-				dataMax = entry.median_house_value;
-			}
-		});
+		// 	if(entry.median_house_value < dataMin)
+		// 	{
+		// 		dataMin = entry.median_house_value;
+		// 	}
+		// 	if(entry.median_house_value > dataMax)
+		// 	{
+		// 		dataMax = entry.median_house_value;
+		// 	}
+		// });
 
-		heatmap = new google.maps.visualization.HeatmapLayer({
-			data: heatmapData,
-			dissipating: true,
-			radius: 20,
-			map: map
-		});
+		// heatmap = new google.maps.visualization.HeatmapLayer({
+		// 	data: heatmapData,
+		// 	dissipating: true,
+		// 	radius: 20,
+		// 	map: map
+		// });
 
-		console.log("Success! Loaded Heatmap With Median House Value");
+		// console.log("Success! Loaded Heatmap With Median House Value");
 	}
 
-	if( dataMin != Number.MAX_VALUE || dataMax != -Number.MAX_VALUE)
-	{
-		// update and display the legend
-		document.getElementById('census-min').textContent = dataMin.toLocaleString();
-		document.getElementById('census-max').textContent = dataMax.toLocaleString();
+	// if( dataMin != Number.MAX_VALUE || dataMax != -Number.MAX_VALUE)
+	// {
+	// 	// update and display the legend
+	// 	document.getElementById('census-min').textContent = dataMin.toLocaleString();
+	// 	document.getElementById('census-max').textContent = dataMax.toLocaleString();
 
-		//document.getElementById('data-box').style.display = 'block';
-	}
-	else
-	{
-		// reset back to default min & max
-		document.getElementById('census-min').textContent = "min";
-		document.getElementById('census-max').textContent = "max";
-		//document.getElementById('data-box').style.display = 'none';
-	}
+	// 	//document.getElementById('data-box').style.display = 'block';
+	// }
+	// else
+	// {
+	// 	// reset back to default min & max
+	// 	document.getElementById('census-min').textContent = "min";
+	// 	document.getElementById('census-max').textContent = "max";
+	// 	//document.getElementById('data-box').style.display = 'none';
+	// }
 
 
 }
@@ -463,6 +407,105 @@ function updateDataDisplay() {
        
 }
 
+function updateStateLevelDisplay() {
+	(function() {
+		var form = document.getElementById('selected_data_form');
+		var elements = form.elements;
+		var options = elements.selected_data;
+
+		for(var i = 0; i < options.length; i++)
+		{
+			if(options[i].checked == true)
+			{
+				console.log(options[i].value + " is selected");
+			}
+		}
+
+		// Clear any old data selection
+		clearCensusData();
+
+		// If heatmap was selected
+		if(document.getElementById("overlay_style").value == "heatmap_1")
+		{
+			var heatmapData = [];
+			var dataMinMarker;
+			var dataMaxMarker;
+			var dataMinLocation;
+			var dataMaxLocation;
+			var dataMinMarkerOptions;
+			var dataMaxMarkerOptions;
+
+			dataset_housing.forEach( function(entry)
+			{
+				var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
+
+				// Get weight for each data entry. For each data col that was selected, add to weight
+				var entry_weight = 0;
+				for(var i = 0; i < options.length; i++)
+				{
+					if(options[i].checked == true)
+					{
+						entry_weight += entry[options[i].value];
+					}
+				}
+
+
+				var weightedLoc = {
+				    location: entry_position,
+				    weight: entry_weight
+				};
+
+				heatmapData.push(weightedLoc);
+
+				// Final Min and Max
+				// if(entry.population < dataMin)
+				// {
+				// 	dataMin = entry.population;
+				// 	dataMinLocation = new google.maps.LatLng(entry.latitude, entry.longitude);
+				// 	dataMinMarkerOptions = {
+				// 		position: dataMinLocation,
+				// 		opacity: 0.7,
+				// 		icon: { url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png" },
+				// 		map: map
+				// 	};
+				// }
+				// if(entry.population > dataMax)
+				// {
+				// 	dataMax = entry.population;
+				// 	dataMaxLocation = new google.maps.LatLng(entry.latitude, entry.longitude);
+				// 	dataMaxMarkerOptions = {
+				// 		position: dataMaxLocation,
+				// 		opacity: 0.7,
+				// 		icon: { url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" },
+				// 		map: map
+				// 	};
+				// }
+			});
+
+			heatmap = new google.maps.visualization.HeatmapLayer({
+				data: heatmapData,
+				dissipating: true,
+				radius: 20,
+				map: map
+			});
+
+			// dataMinMarker = new google.maps.Marker(dataMinMarkerOptions);
+			// dataMaxMarker = new google.maps.Marker(dataMaxMarkerOptions);
+			// dataLayer.push(dataMinMarker);
+			// dataLayer.push(dataMaxMarker);
+
+			console.log("Success! Loaded Heatmap 1");
+		}
+		else if(document.getElementById("overlay_style").value == "heatmap_2")
+		{
+			
+		}
+		
+
+	}());
+
+}
+
 function startButtonEvents () {
 	// document.getElementById('btnResetZoom').addEventListener('click', function(){ resetZoom(); });
 	// document.getElementById('btnZoomToSC').addEventListener('click', function(){ zoomToSantaCruz(); });
@@ -470,6 +513,7 @@ function startButtonEvents () {
 	// document.getElementById('btnZoomToSF').addEventListener('click', function(){ zoomToSanFrancisco(); });
 	// document.getElementById('btnZoomToLA').addEventListener('click', function(){ zoomToLosAngeles(); });
 	document.getElementById('btnUpdateDataDisplay').addEventListener('click', function(){ updateDataDisplay(); });
+	document.getElementById('btnUpdateStateLevelDisplay').addEventListener('click', function(){ updateStateLevelDisplay(); });
 	
 }
 
