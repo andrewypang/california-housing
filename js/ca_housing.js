@@ -312,6 +312,7 @@ function mergeDatasets(){
 
 function updateCountyLevelDisplay() {
 
+	// DIV = selected-county
 	var list = document.getElementById("selected-county");
 	while (list.firstChild)
 	{
@@ -319,12 +320,13 @@ function updateCountyLevelDisplay() {
 	}
 
 	var countyList = document.getElementById("selected-county");
+	var subCountyArray = [];
 
-	map.data.forEach(function(feature) {
+	map.data.forEach(function(feature_county) {
 
-		if(feature.getProperty('isColorful'))
+		// Check which county is selected
+		if(feature_county.getProperty('isColorful'))
 		{
-			var county_name = feature.getProperty('NAME');
 
 			var entryCount = 0;
 			var subCountyObject = {
@@ -337,10 +339,14 @@ function updateCountyLevelDisplay() {
 					households:	0,
 					median_income: 0,
 					median_house_value: 0,
-					ocean_proximity: 0
+					ocean_proximity: 0,
+					county_name: 0
 			};
+
+			// Sum up the total data from each entry
 			dataset_housing['data'].forEach( function(entry) {
-				if(entry['county_name'] == county_name)
+				// Match dataset_housing with map.data.GeoJSON dataset
+				if(entry['county_name'] == feature_county.getProperty('NAME'))
 				{
 					entryCount += 1;
 
@@ -352,9 +358,11 @@ function updateCountyLevelDisplay() {
 					subCountyObject['median_income'] += entry.median_income;
 					subCountyObject['median_house_value'] += entry.median_house_value;
 					subCountyObject['ocean_proximity'] += entry.ocean_proximity;
+					subCountyObject['county_name'] = entry['county_name'];
 
 				}
 			}); // close For Each housing dataset entries
+			subCountyArray.push(subCountyObject);
 
 			var county = document.createElement('div');
 			county.setAttribute("class", "county");
@@ -362,7 +370,7 @@ function updateCountyLevelDisplay() {
 			// Create the County Name label
 			var countyName = document.createElement('h4');
 			countyName.style.height = "20px"; 
-			countyName.appendChild( document.createTextNode(feature.getProperty('NAME')) );
+			countyName.appendChild( document.createTextNode(feature_county.getProperty('NAME')) );
 			county.appendChild(countyName);
 
 			// Create the County Stats list
@@ -370,146 +378,128 @@ function updateCountyLevelDisplay() {
 			countyStats.setAttribute("class", "county-stats");
 
 			var li = document.createElement("li");
-			li.appendChild(document.createTextNode( "Number of Data Points: " + entryCount.toLocaleString() ));
+			li.appendChild(document.createTextNode("Number of Data Points: "));
+			li.appendChild(document.createTextNode(entryCount.toLocaleString())); 
 			countyStats.appendChild(li);
 
 			var li = document.createElement("li");
-			li.appendChild(document.createTextNode( "Population: " + subCountyObject['population'].toLocaleString() ));
+			li.appendChild(document.createTextNode("Population: "));
+			li.appendChild(document.createTextNode(subCountyObject['population'])); 
 			countyStats.appendChild(li);
 
 			var li = document.createElement("li");
-			li.appendChild(document.createTextNode( "Median Income: " + ((subCountyObject['median_income']/entryCount)*10000).toLocaleString() ));
+			li.appendChild(document.createTextNode("Median Income: "));
+			li.appendChild(document.createTextNode( ((subCountyObject['median_income']/entryCount)*10000).toLocaleString() )); 
 			countyStats.appendChild(li);
 
 			var li = document.createElement("li");
-			li.appendChild(document.createTextNode( "Median House Value: " + (subCountyObject['median_house_value']/entryCount).toLocaleString() ));
+			li.appendChild(document.createTextNode( "Median House Value: "));
+			li.appendChild(document.createTextNode( (subCountyObject['median_house_value']/entryCount).toLocaleString() )); 
 			countyStats.appendChild(li);
 
 			county.appendChild(countyStats);
 
 			countyList.appendChild(county);
-		} // close For Each map.data
+		}
 
+	// DIV = d3chart
+	// var canvas = d3.select("#d3chart")
+	// 			.append("svg:svg")
+	// 			.attr("width", 300)
+	// 			.attr("height", 300);
 
+	});  // close For Each map.data
 
-		
+	// Color Stats
+	var high_color = {
+		"numOfData": null,
+		"population": null,
+		"median_income": null,
+		"median_house_value": null
+	};
+	var highValues = {
+		"numOfData": -Number.MAX_VALUE,
+    	"longitude": -Number.MAX_VALUE,
+	    "latitude": -Number.MAX_VALUE,
+	    "housing_median_age": -Number.MAX_VALUE,
+	    "total_rooms": -Number.MAX_VALUE,
+	    "total_bedrooms": -Number.MAX_VALUE,
+	    "population": -Number.MAX_VALUE,
+	    "households": -Number.MAX_VALUE,
+	    "median_income": -Number.MAX_VALUE,
+	    "median_house_value": -Number.MAX_VALUE,
+	    "ocean_proximity": -Number.MAX_VALUE,
+	    "county_name": -Number.MAX_VALUE
+	}
+	var lowValues = {
+		"numOfData": Number.MAX_VALUE,
+    	"longitude": Number.MAX_VALUE,
+	    "latitude": Number.MAX_VALUE,
+	    "housing_median_age": Number.MAX_VALUE,
+	    "total_rooms": Number.MAX_VALUE,
+	    "total_bedrooms": Number.MAX_VALUE,
+	    "population": Number.MAX_VALUE,
+	    "households": Number.MAX_VALUE,
+	    "median_income": Number.MAX_VALUE,
+	    "median_house_value": Number.MAX_VALUE,
+	    "ocean_proximity": Number.MAX_VALUE,
+	    "county_name": Number.MAX_VALUE
+	}
 
+	//var numOfData_high = -Number.MAX_VALUE;
+	var population_high;
+	var countyElements = document.getElementsByClassName('county');
+	if(countyElements.length > 1)
+	{
+		for(var i = 0; i < countyElements.length; i++)
+		{
+			var county_node = countyElements[i];
+			var county_name_node = county_node.firstChild;
+			var county_ul_node = county_node.lastChild;
 
+			var numOfData_il_node = county_ul_node.childNodes[0];
+			var numOfData_value = parseFloat(numOfData_il_node.childNodes[1].textContent);
+			if(numOfData_value > highValues['numOfData'])
+			{
+				highValues['numOfData'] = numOfData_value;
+				high_color['numOfData'] = numOfData_il_node;
+			}
 
-	});
+			var population_il_node = county_ul_node.childNodes[1];
+			var population_value = parseFloat(population_il_node.childNodes[1].textContent);
+			if(population_value > highValues['population'])
+			{
+				console.log(population_value + ">" + highValues['population']);
+				console.log("population_value > highValues['population']::" + (population_value > highValues['population']) );
+				highValues['population'] = population_value;
+				high_color['population'] = population_il_node;
+			}
 
- 	// dataset_housing["data"].forEach(function(entry) {
+			var median_income_il_node = county_ul_node.childNodes[2];
+			var median_income_value = parseFloat(median_income_il_node.childNodes[1].textContent);
+			if(median_income_value > highValues['median_income'])
+			{
+				highValues['median_income'] = median_income_value;
+				high_color['median_income'] = median_income_il_node;
+			}
 
- 	// 	var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
+			var median_house_value_il_node = county_ul_node.childNodes[3];
+			var median_house_value_value = parseFloat(median_house_value_il_node.childNodes[1].textContent);
+			if(median_house_value_value > highValues['median_house_value'])
+			{
+				highValues['median_house_value'] = median_house_value_value;
+				high_color['median_house_value'] = median_house_value_il_node;
+			}
 
- 	// 	map.data.forEach(function(feature) {
+		}
 
- 	// 		if(feature.getGeometry().getType() === 'Polygon')
-		// 	{
+		high_color['numOfData'].style.color = "green";
+		high_color['population'].style.color = "green";
+		high_color['median_income'].style.color = "green";
+		high_color['median_house_value'].style.color = "green";
 
-		// 		var polyPath = feature.getGeometry().getAt(0).getArray();
-		// 		var poly = new google.maps.Polygon({
-		// 			paths: polyPath
-		// 		});
+	}
 
-		// 		if(google.maps.geometry.poly.containsLocation(entry_position, poly))
-		// 		{
-		// 			var name_of_county_value = feature.getProperty("NAME");
-		// 			//console.log(name_of_county_value);
-		// 			//entry["county_name"] = name_of_county_value;
-		// 		}
-
-		// 	}
-		// 	else
-		// 	{
-		// 		//console.error("Fix:" + feature.getGeometry().getType());
-		// 	}
-
- 	// 	});
-
- 	// });
-
- 	// console.log(dataset_housing["data"]);
-
-
- // 	// COMMENT HERE BELOW
- // 	// SLOW AND COSTLY (1)
-	// map.data.forEach(function(feature) {
-	// 	if(feature.getProperty('isColorful'))
-	// 	{
-	// 		console.log(feature.getProperty('NAME') + " is selected");
-
-	// 		// Fix else if not polygon ie multipolygon
-	// 		if(feature.getGeometry().getType() === 'Polygon')
-	// 		{
-	// 			var polyPath = feature.getGeometry().getAt(0).getArray();
-	// 			var poly = new google.maps.Polygon({
-	// 				paths: polyPath
-	// 			});
-
-	// 			// SLOW AND COSTLY (2)
-	// 			dataset_housing.forEach( function(entry) {
-
-	// 				var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
-
-	// 				if(google.maps.geometry.poly.containsLocation(entry_position, poly))
-	// 				{
-	// 					entryCount += 1;
-	// 					subcounty_housing_median_age += entry.housing_median_age; 
-	// 					subcounty_total_rooms += entry.total_rooms;
-	// 					subcounty_total_bedrooms += entry.total_bedrooms;
-	// 					subcounty_population += entry.population;
-	// 					subcounty_households += entry.households;
-	// 					subcounty_median_income += entry.median_income;
-	// 					subcounty_median_house_value += entry.median_house_value;
-	// 					subcounty_ocean_proximity += entry.ocean_proximity;
-	// 				}
-
-	// 			});
-
-	// 			var countyList = document.getElementById("selected-county");
-
-	// 			var county = document.createElement('div');
-	// 			county.setAttribute("class", "county");
-
-	// 			// Create the County Name label
-	// 			var countyName = document.createElement('h4');
-	// 			countyName.style.height = "20px"; 
-	// 			countyName.appendChild( document.createTextNode(feature.getProperty('NAME')) );
-	// 			county.appendChild(countyName);
-
-	// 			// Create the County Stats list
-	// 			var countyStats = document.createElement('ul');
-	// 			countyStats.setAttribute("class", "county-stats");
-
-	// 			var li = document.createElement("li");
-	// 			li.appendChild(document.createTextNode( "Number of Data Points: " + entryCount.toLocaleString() ));
-	// 			countyStats.appendChild(li);
-
-	// 			var li = document.createElement("li");
-	// 			li.appendChild(document.createTextNode( "Population: " + subcounty_population.toLocaleString() ));
-	// 			countyStats.appendChild(li);
-
-	// 			var li = document.createElement("li");
-	// 			li.appendChild(document.createTextNode( "Median Income: " + ((subcounty_median_income/entryCount)*10000).toLocaleString() ));
-	// 			countyStats.appendChild(li);
-
-	// 			var li = document.createElement("li");
-	// 			li.appendChild(document.createTextNode( "Median House Value: " + (subcounty_median_house_value/entryCount).toLocaleString() ));
-	// 			countyStats.appendChild(li);
-
-	// 			county.appendChild(countyStats);
-
-	// 			countyList.appendChild(county);
-	// 		}
- // 			else
- // 			{
- // 				console.log("Need fix:" + event.feature.getGeometry().getType());
- // 			}
-
-	// 	}
-	// });
-	// // UNCOMMENT TOP
        
 }
 
