@@ -98,7 +98,7 @@ html, body {
 
 }
 
-#btnUpdateDataDisplay {
+#btnUpdateCountyLevelDisplay {
 	height: 20px;
 	margin-top: 10px;
 }
@@ -155,6 +155,11 @@ html, body {
 	display: none; 
 	font-size: 14px; 
 	width: 14px
+}
+
+#selected-county-list {
+	height: 75px;
+	overflow-y: scroll;
 }
 
 #selected-county {

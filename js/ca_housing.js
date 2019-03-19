@@ -10,7 +10,7 @@ var map;
 var dataset_housing = {
 	data: null,
 	analyze: {
-		maxVales: null,
+		maxValues: null,
 		minValues: null
 	}
 };
@@ -27,9 +27,6 @@ function initMap(){
         east: -109.663626
     };
 
-	//Enabling new cartography and themes
-	//google.maps.visualRefresh = true;
-	//Setting starting options of map
 	var mapOptions = {
 		center: centerOfCali,
 		zoom: ZOOM_OUT,
@@ -70,87 +67,21 @@ function initMap(){
 
 
 	// wire up the button
-    var selectBox = document.getElementById('overlay_style');
+    //var selectBox = document.getElementById('overlay_style');
     // google.maps.event.addDomListener(selectBox, 'change', function() {
     //     clearCensusData();
     //     loadCensusData(selectBox.options[selectBox.selectedIndex].value);
     // });
 
-    google.maps.event.addDomListener(selectBox, 'zoom_changed', function() {
+    // google.maps.event.addDomListener(selectBox, 'zoom_changed', function() {
 
-    });
+    // });
+
+	parseHousingDataJSON();
 
 	parseGeoJSON();
 
-	// Read in housing data from JSON file
-	$.getJSON("datasets/housing.json", function(raw_json) {
-	    //console.log(json); // this will show the info it in firebug console
-	    //dataset_housing = json;
-	    var tempHousingArrayHolder = [];
-	    var maxValues = {
-	    	"longitude": -Number.MAX_VALUE,
-    	    "latitude": -Number.MAX_VALUE,
-    	    "housing_median_age": -Number.MAX_VALUE,
-    	    "total_rooms": -Number.MAX_VALUE,
-    	    "total_bedrooms": -Number.MAX_VALUE,
-    	    "population": -Number.MAX_VALUE,
-    	    "households": -Number.MAX_VALUE,
-    	    "median_income": -Number.MAX_VALUE,
-    	    "median_house_value": -Number.MAX_VALUE,
-    	    "ocean_proximity": -Number.MAX_VALUE
-	    }
-	    var minValues = {
-	    	"longitude": Number.MAX_VALUE,
-    	    "latitude": Number.MAX_VALUE,
-    	    "housing_median_age": Number.MAX_VALUE,
-    	    "total_rooms": Number.MAX_VALUE,
-    	    "total_bedrooms": Number.MAX_VALUE,
-    	    "population": Number.MAX_VALUE,
-    	    "households": Number.MAX_VALUE,
-    	    "median_income": Number.MAX_VALUE,
-    	    "median_house_value": Number.MAX_VALUE,
-    	    "ocean_proximity": Number.MAX_VALUE
-	    }
-
-	    var headers = [ "longitude", "latitude", "housing_median_age", "total_rooms", "total_bedrooms", "population", "households", "median_income", "median_house_value", "ocean_proximity"];
-
-	    raw_json.forEach(function(entry) {
-	    	// Check if any are empty
-	    	// else insert into dataset
-	    	var pass = true;
-	    	for(var i = 0; i < headers.length; i++)
-	    	{
-	    		if(!entry[headers[i]])
-	    		{
-					pass = false;
-	    		}
-	    	}
-	    	if(pass)
-	    	{
-	    		tempHousingArrayHolder.push(entry);
-
-	    		// Find max and min
-	    		for(var i = 0; i < headers.length; i++)
-	    		{
-	    			if(entry[headers[i]] > maxValues[headers[i]])
-	    			{
-	    				maxValues[headers[i]] = entry[headers[i]];
-	    			}
-	    			if(entry[headers[i]] < minValues[headers[i]])
-	    			{
-	    				minValues[headers[i]] = entry[headers[i]];
-	    			}
-	    		}
-	    	}
-	    });
-
-	    //Enter into dataset_housing
-	    dataset_housing['data'] = tempHousingArrayHolder;
-	    dataset_housing['analyze']['maxValues'] = maxValues;
-	    dataset_housing['analyze']['minValues'] = minValues;
-
-		document.getElementById("overlay_style").disabled = false;
-	});
+	//mergeDatasets(); //Call only if needed ie when moving one dataset value to another
 
 	$(document).ready()
 	{
@@ -168,8 +99,6 @@ function clearCensusData() {
 	map.data.forEach(function(row){
 		row.setProperty('census_variable', undefined);
 	});
-	//document.getElementById('data-box').style.display = 'none';
-	//document.getElementById('data-caret').style.display = 'none';
 
 	//Clear markers and heatmap
 	if(housingCluster != null)
@@ -207,11 +136,12 @@ function loadCensusData(variable) {
 	else if(variable == "HouseMarkers")
 	{
 		//NEED TO CHANGE HOUSE MARKERS TO COUNTY LEVEL
+		// O(n)
 
 		var startTemp = new Date();
 
 		var markers = [];
-		dataset_housing.forEach( function(entry) {
+		dataset_housing['data'].forEach( function(entry) {
 			var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
 
 			var MarkerOptions = {
@@ -315,26 +245,21 @@ function zoomToLosAngeles() {
        map.setZoom(ZOOM_IN);
 }
 
-function updateDataDisplay() {
-
-	var list = document.getElementById("selected-county");
-	while (list.firstChild)
+function mergeDatasets(){
+	var entryCounter = 0;
+	var temp = [];
+	for(var i = 20000; i < dataset_housing['data'].length; i++)
 	{
-	    list.removeChild(list.firstChild);
-	}
-
-
- 	//Get headers
- 	var subcounty_housing_median_age = subcounty_total_rooms = subcounty_total_bedrooms = subcounty_population = subcounty_households = subcounty_median_income = subcounty_median_house_value = subcounty_ocean_proximity = 0;
- 	var entryCount = 0;
-
- 	// SLOW AND COSTLY (1)
-	map.data.forEach(function(feature) {
-		if(feature.getProperty('isColorful'))
+		entryCounter += 1;
+		if((entryCounter % 100) == 0)
 		{
-			console.log(feature.getProperty('NAME') + " is selected");
+			console.log(entryCounter);
+		}
 
-			// Fix else if not polygon ie multipolygon
+
+	 	var entry = dataset_housing['data'][i];
+	 	var entry_position = new google.maps.LatLng(parseFloat(entry.latitude), parseFloat(entry.longitude));
+		map.data.forEach(function(feature) {
 			if(feature.getGeometry().getType() === 'Polygon')
 			{
 				var polyPath = feature.getGeometry().getAt(0).getArray();
@@ -342,68 +267,178 @@ function updateDataDisplay() {
 					paths: polyPath
 				});
 
-				// SLOW AND COSTLY (2)
-				dataset_housing.forEach( function(entry) {
+				if(google.maps.geometry.poly.containsLocation(entry_position, poly))
+				{
+					var name_of_county_value = feature.getProperty("NAME");
+					entry["county_name"] = name_of_county_value;
+					temp.push(entry);
+				}
+			}
+			else if(feature.getGeometry().getType() === 'MultiPolygon')
+			{
+				var array = feature.getGeometry().getArray();
 
-					var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
+				array.forEach( function(item, i) {
+		            var polyPath= item.getAt(0).getArray();
+		            var poly = new google.maps.Polygon({
+		              paths: polyPath
+		            });
 
-					if(google.maps.geometry.poly.containsLocation(entry_position, poly))
-					{
-						entryCount += 1;
-						subcounty_housing_median_age += entry.housing_median_age; 
-						subcounty_total_rooms += entry.total_rooms;
-						subcounty_total_bedrooms += entry.total_bedrooms;
-						subcounty_population += entry.population;
-						subcounty_households += entry.households;
-						subcounty_median_income += entry.median_income;
-						subcounty_median_house_value += entry.median_house_value;
-						subcounty_ocean_proximity += entry.ocean_proximity;
-					}
-
+		            if(google.maps.geometry.poly.containsLocation(entry_position, poly)) {
+		            	var name_of_county_value = feature.getProperty("NAME");
+						entry["county_name"] = name_of_county_value;
+						temp.push(entry);
+		            }	
 				});
 
-				var countyList = document.getElementById("selected-county");
-
-				var county = document.createElement('div');
-				county.setAttribute("class", "county");
-
-				// Create the County Name label
-				var countyName = document.createElement('h4');
-				countyName.style.height = "20px"; 
-				countyName.appendChild( document.createTextNode(feature.getProperty('NAME')) );
-				county.appendChild(countyName);
-
-				// Create the County Stats list
-				var countyStats = document.createElement('ul');
-				countyStats.setAttribute("class", "county-stats");
-
-				var li = document.createElement("li");
-				li.appendChild(document.createTextNode( "Number of Data Points: " + entryCount.toLocaleString() ));
-				countyStats.appendChild(li);
-
-				var li = document.createElement("li");
-				li.appendChild(document.createTextNode( "Population: " + subcounty_population.toLocaleString() ));
-				countyStats.appendChild(li);
-
-				var li = document.createElement("li");
-				li.appendChild(document.createTextNode( "Median Income: " + ((subcounty_median_income/entryCount)*10000).toLocaleString() ));
-				countyStats.appendChild(li);
-
-				var li = document.createElement("li");
-				li.appendChild(document.createTextNode( "Median House Value: " + (subcounty_median_house_value/entryCount).toLocaleString() ));
-				countyStats.appendChild(li);
-
-				county.appendChild(countyStats);
-
-				countyList.appendChild(county);
 			}
- 			else
- 			{
- 				console.log("Need fix:" + event.feature.getGeometry().getType());
- 			}
+			else
+			{
+				console.error("Fix:" + feature.getGeometry().getType());
+			}
 
-		}
-	});
+		});
+	}
+
+	var data  = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(temp));
+
+	var a       = document.createElement('a');
+	a.href      = 'data:' + data;
+	a.download  = 'data.json';
+	a.innerHTML = 'download .txt file of json';
+
+	document.getElementById('tab-2').appendChild(a);
+}
+
+function updateCountyLevelDisplay() {
+
+	var list = document.getElementById("selected-county");
+	while (list.firstChild)
+	{
+	    list.removeChild(list.firstChild);
+	}
+
+	
+
+
+	//});
+
+ 
+
+
+
+ 	// dataset_housing["data"].forEach(function(entry) {
+
+ 	// 	var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
+
+ 	// 	map.data.forEach(function(feature) {
+
+ 	// 		if(feature.getGeometry().getType() === 'Polygon')
+		// 	{
+
+		// 		var polyPath = feature.getGeometry().getAt(0).getArray();
+		// 		var poly = new google.maps.Polygon({
+		// 			paths: polyPath
+		// 		});
+
+		// 		if(google.maps.geometry.poly.containsLocation(entry_position, poly))
+		// 		{
+		// 			var name_of_county_value = feature.getProperty("NAME");
+		// 			//console.log(name_of_county_value);
+		// 			//entry["county_name"] = name_of_county_value;
+		// 		}
+
+		// 	}
+		// 	else
+		// 	{
+		// 		//console.error("Fix:" + feature.getGeometry().getType());
+		// 	}
+
+ 	// 	});
+
+ 	// });
+
+ 	// console.log(dataset_housing["data"]);
+
+
+ // 	// COMMENT HERE BELOW
+ // 	// SLOW AND COSTLY (1)
+	// map.data.forEach(function(feature) {
+	// 	if(feature.getProperty('isColorful'))
+	// 	{
+	// 		console.log(feature.getProperty('NAME') + " is selected");
+
+	// 		// Fix else if not polygon ie multipolygon
+	// 		if(feature.getGeometry().getType() === 'Polygon')
+	// 		{
+	// 			var polyPath = feature.getGeometry().getAt(0).getArray();
+	// 			var poly = new google.maps.Polygon({
+	// 				paths: polyPath
+	// 			});
+
+	// 			// SLOW AND COSTLY (2)
+	// 			dataset_housing.forEach( function(entry) {
+
+	// 				var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
+
+	// 				if(google.maps.geometry.poly.containsLocation(entry_position, poly))
+	// 				{
+	// 					entryCount += 1;
+	// 					subcounty_housing_median_age += entry.housing_median_age; 
+	// 					subcounty_total_rooms += entry.total_rooms;
+	// 					subcounty_total_bedrooms += entry.total_bedrooms;
+	// 					subcounty_population += entry.population;
+	// 					subcounty_households += entry.households;
+	// 					subcounty_median_income += entry.median_income;
+	// 					subcounty_median_house_value += entry.median_house_value;
+	// 					subcounty_ocean_proximity += entry.ocean_proximity;
+	// 				}
+
+	// 			});
+
+	// 			var countyList = document.getElementById("selected-county");
+
+	// 			var county = document.createElement('div');
+	// 			county.setAttribute("class", "county");
+
+	// 			// Create the County Name label
+	// 			var countyName = document.createElement('h4');
+	// 			countyName.style.height = "20px"; 
+	// 			countyName.appendChild( document.createTextNode(feature.getProperty('NAME')) );
+	// 			county.appendChild(countyName);
+
+	// 			// Create the County Stats list
+	// 			var countyStats = document.createElement('ul');
+	// 			countyStats.setAttribute("class", "county-stats");
+
+	// 			var li = document.createElement("li");
+	// 			li.appendChild(document.createTextNode( "Number of Data Points: " + entryCount.toLocaleString() ));
+	// 			countyStats.appendChild(li);
+
+	// 			var li = document.createElement("li");
+	// 			li.appendChild(document.createTextNode( "Population: " + subcounty_population.toLocaleString() ));
+	// 			countyStats.appendChild(li);
+
+	// 			var li = document.createElement("li");
+	// 			li.appendChild(document.createTextNode( "Median Income: " + ((subcounty_median_income/entryCount)*10000).toLocaleString() ));
+	// 			countyStats.appendChild(li);
+
+	// 			var li = document.createElement("li");
+	// 			li.appendChild(document.createTextNode( "Median House Value: " + (subcounty_median_house_value/entryCount).toLocaleString() ));
+	// 			countyStats.appendChild(li);
+
+	// 			county.appendChild(countyStats);
+
+	// 			countyList.appendChild(county);
+	// 		}
+ // 			else
+ // 			{
+ // 				console.log("Need fix:" + event.feature.getGeometry().getType());
+ // 			}
+
+	// 	}
+	// });
+	// // UNCOMMENT TOP
        
 }
 
@@ -435,7 +470,7 @@ function updateStateLevelDisplay() {
 			var dataMinMarkerOptions;
 			var dataMaxMarkerOptions;
 
-			dataset_housing.forEach( function(entry)
+			dataset_housing["data"].forEach( function(entry)
 			{
 				var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
 
@@ -456,30 +491,6 @@ function updateStateLevelDisplay() {
 				};
 
 				heatmapData.push(weightedLoc);
-
-				// Final Min and Max
-				// if(entry.population < dataMin)
-				// {
-				// 	dataMin = entry.population;
-				// 	dataMinLocation = new google.maps.LatLng(entry.latitude, entry.longitude);
-				// 	dataMinMarkerOptions = {
-				// 		position: dataMinLocation,
-				// 		opacity: 0.7,
-				// 		icon: { url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png" },
-				// 		map: map
-				// 	};
-				// }
-				// if(entry.population > dataMax)
-				// {
-				// 	dataMax = entry.population;
-				// 	dataMaxLocation = new google.maps.LatLng(entry.latitude, entry.longitude);
-				// 	dataMaxMarkerOptions = {
-				// 		position: dataMaxLocation,
-				// 		opacity: 0.7,
-				// 		icon: { url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" },
-				// 		map: map
-				// 	};
-				// }
 			});
 
 			heatmap = new google.maps.visualization.HeatmapLayer({
@@ -489,18 +500,39 @@ function updateStateLevelDisplay() {
 				map: map
 			});
 
-			// dataMinMarker = new google.maps.Marker(dataMinMarkerOptions);
-			// dataMaxMarker = new google.maps.Marker(dataMaxMarkerOptions);
-			// dataLayer.push(dataMinMarker);
-			// dataLayer.push(dataMaxMarker);
-
 			console.log("Success! Loaded Heatmap 1");
 		}
 		else if(document.getElementById("overlay_style").value == "heatmap_2")
 		{
-			var low_color = document.getElementById("color-key").style.backgroundImage;
+			//var low_color = hsla(5, 69%, 54%, 0.1);
+			//console.log(low_color);
 
-			console.log(low_color);
+			var min_color = [5, 69, 64];
+			var max_color = [151, 83, 34];
+
+			var value_to_consider
+
+			map.data.setStyle(function(feature){
+
+				//delta represents where the value sits between the min and max
+				var delta = (entry.population - dataset_housing['analyze']['minValues']['population'] ) / (dataset_housing['analyze']['maxValues']['population'] - dataset_housing['analyze']['minValues']['population']);
+
+
+			  	var color = [];
+			  	for (var i = 0; i < 3; i++) {
+                  	// calculate an integer color based on the delta
+                  	color[i] = (max_color[i] - min_color[i]) * delta + min_color[i];
+              	}
+
+
+			  	return /** @type {!google.maps.Data.StyleOptions} */({
+				    fillColor: 'hsl(' + color[0] + ',' + color[1] + '%,' + color[2] + '%)',
+				    strokeColor: color,
+				    fillOpacity: 0.1,
+				    strokeOpacity: 0.1,
+				    strokeWeight: 2
+			  	});
+			});
 		}
 		
 
@@ -514,7 +546,7 @@ function startButtonEvents () {
 	// document.getElementById('btnZoomToSJ').addEventListener('click', function(){ zoomToSanJose(); });
 	// document.getElementById('btnZoomToSF').addEventListener('click', function(){ zoomToSanFrancisco(); });
 	// document.getElementById('btnZoomToLA').addEventListener('click', function(){ zoomToLosAngeles(); });
-	document.getElementById('btnUpdateDataDisplay').addEventListener('click', function(){ updateDataDisplay(); });
+	document.getElementById('btnUpdateCountyLevelDisplay').addEventListener('click', function(){ updateCountyLevelDisplay(); });
 	document.getElementById('btnUpdateStateLevelDisplay').addEventListener('click', function(){ updateStateLevelDisplay(); });
 	
 }
@@ -535,8 +567,7 @@ function parseGeoJSON() {
 	    }
 	});
 
-	// Color each letter gray. Change the color when the isColorful property
-    // is set to true.
+
     map.data.setStyle(function(feature) {
       var color = 'blue';
       if (feature.getProperty('isColorful')) {
@@ -555,7 +586,21 @@ function parseGeoJSON() {
     map.data.addListener('click', function(event) {
     	event.feature.setProperty('isColorful', !(event.feature.getProperty('isColorful')) );
 
-    }); // End of map.data.addListener('click', function(event)
+    	var list_node = document.getElementById('selected-county-list');
+    	while (list_node.firstChild)
+    	{
+    	    list_node.removeChild(list_node.firstChild);
+    	}
+
+    	map.data.forEach(function(feature) {
+    		if(feature.getProperty('isColorful')) {
+    			var li = document.createElement("li");
+    			li.appendChild(document.createTextNode( feature.getProperty('NAME') ));
+    			list_node.appendChild(li);
+    		}
+    	});
+
+    });
 
     // Set mouseover event for each feature.
     map.data.addListener('mouseover', function(event) {
@@ -566,4 +611,83 @@ function parseGeoJSON() {
     	document.getElementById('hover-label').textContent = "";
     });
 
+    //map.data.getFeatureById(stateId).setProperty('census_variable', censusVariable);
+
+
+}
+
+function parseHousingDataJSON() {
+	// Read in housing data from JSON file
+	$.getJSON("datasets/dataset_housing_pp.json", function(raw_json) {
+	    //console.log(json); // this will show the info it in firebug console
+	    //dataset_housing = json;
+	    var tempHousingArrayHolder = [];
+	    var maxValues = {
+	    	"longitude": -Number.MAX_VALUE,
+    	    "latitude": -Number.MAX_VALUE,
+    	    "housing_median_age": -Number.MAX_VALUE,
+    	    "total_rooms": -Number.MAX_VALUE,
+    	    "total_bedrooms": -Number.MAX_VALUE,
+    	    "population": -Number.MAX_VALUE,
+    	    "households": -Number.MAX_VALUE,
+    	    "median_income": -Number.MAX_VALUE,
+    	    "median_house_value": -Number.MAX_VALUE,
+    	    "ocean_proximity": -Number.MAX_VALUE,
+    	    "county_name": -Number.MAX_VALUE
+	    }
+	    var minValues = {
+	    	"longitude": Number.MAX_VALUE,
+    	    "latitude": Number.MAX_VALUE,
+    	    "housing_median_age": Number.MAX_VALUE,
+    	    "total_rooms": Number.MAX_VALUE,
+    	    "total_bedrooms": Number.MAX_VALUE,
+    	    "population": Number.MAX_VALUE,
+    	    "households": Number.MAX_VALUE,
+    	    "median_income": Number.MAX_VALUE,
+    	    "median_house_value": Number.MAX_VALUE,
+    	    "ocean_proximity": Number.MAX_VALUE,
+    	    "county_name": Number.MAX_VALUE
+	    }
+
+	    var headers = [ "longitude", "latitude", "housing_median_age", "total_rooms", "total_bedrooms", "population", "households", "median_income", "median_house_value", "ocean_proximity", "county_name"];
+
+	    raw_json.forEach(function(entry) {
+	    	// Check if any are empty
+	    	// else insert into dataset
+	    	var pass = true;
+	    	for(var i = 0; i < headers.length; i++)
+	    	{
+	    		if(!entry[headers[i]])
+	    		{
+					pass = false;
+	    		}
+	    	}
+	    	if(pass)
+	    	{
+	    		tempHousingArrayHolder.push(entry);
+
+	    		// Find max and min
+	    		for(var i = 0; i < headers.length; i++)
+	    		{
+	    			if(entry[headers[i]] > maxValues[headers[i]])
+	    			{
+	    				maxValues[headers[i]] = entry[headers[i]];
+	    			}
+	    			if(entry[headers[i]] < minValues[headers[i]])
+	    			{
+	    				minValues[headers[i]] = entry[headers[i]];
+	    			}
+	    		}
+	    	}
+	    });
+
+	    //Enter into dataset_housing
+	    dataset_housing['data'] = tempHousingArrayHolder;
+	    dataset_housing['analyze']['maxValues'] = maxValues;
+	    dataset_housing['analyze']['minValues'] = minValues;
+
+		document.getElementById("overlay_style").disabled = false;
+
+		//console.log(dataset_housing['data'].length);
+	});
 }
