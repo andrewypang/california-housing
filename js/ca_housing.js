@@ -318,14 +318,85 @@ function updateCountyLevelDisplay() {
 	    list.removeChild(list.firstChild);
 	}
 
-	
+	var countyList = document.getElementById("selected-county");
+
+	map.data.forEach(function(feature) {
+
+		if(feature.getProperty('isColorful'))
+		{
+			var county_name = feature.getProperty('NAME');
+
+			var entryCount = 0;
+			var subCountyObject = {
+					longitude:	0,
+					latitude:	0,
+					housing_median_age:	0,
+					total_rooms: 0,
+					total_bedrooms:	0,
+					population:	0,
+					households:	0,
+					median_income: 0,
+					median_house_value: 0,
+					ocean_proximity: 0
+			};
+			dataset_housing['data'].forEach( function(entry) {
+				if(entry['county_name'] == county_name)
+				{
+					entryCount += 1;
+
+					subCountyObject['housing_median_age'] += entry.housing_median_age; 
+					subCountyObject['total_rooms'] += entry.total_rooms;
+					subCountyObject['total_bedrooms'] += entry.total_bedrooms;
+					subCountyObject['population'] += entry.population;
+					subCountyObject['households'] += entry.households;
+					subCountyObject['median_income'] += entry.median_income;
+					subCountyObject['median_house_value'] += entry.median_house_value;
+					subCountyObject['ocean_proximity'] += entry.ocean_proximity;
+
+				}
+			}); // close For Each housing dataset entries
+
+			var county = document.createElement('div');
+			county.setAttribute("class", "county");
+
+			// Create the County Name label
+			var countyName = document.createElement('h4');
+			countyName.style.height = "20px"; 
+			countyName.appendChild( document.createTextNode(feature.getProperty('NAME')) );
+			county.appendChild(countyName);
+
+			// Create the County Stats list
+			var countyStats = document.createElement('ul');
+			countyStats.setAttribute("class", "county-stats");
+
+			var li = document.createElement("li");
+			li.appendChild(document.createTextNode( "Number of Data Points: " + entryCount.toLocaleString() ));
+			countyStats.appendChild(li);
+
+			var li = document.createElement("li");
+			li.appendChild(document.createTextNode( "Population: " + subCountyObject['population'].toLocaleString() ));
+			countyStats.appendChild(li);
+
+			var li = document.createElement("li");
+			li.appendChild(document.createTextNode( "Median Income: " + ((subCountyObject['median_income']/entryCount)*10000).toLocaleString() ));
+			countyStats.appendChild(li);
+
+			var li = document.createElement("li");
+			li.appendChild(document.createTextNode( "Median House Value: " + (subCountyObject['median_house_value']/entryCount).toLocaleString() ));
+			countyStats.appendChild(li);
+
+			county.appendChild(countyStats);
+
+			countyList.appendChild(county);
+		} // close For Each map.data
 
 
-	//});
 
- 
+		
 
 
+
+	});
 
  	// dataset_housing["data"].forEach(function(entry) {
 
