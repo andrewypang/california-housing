@@ -34,6 +34,7 @@
 			<ul class="tab-list">
 				<li class="active"><a class="tab-control" href="#tab-1">State-Level</a></li>
 				<li               ><a class="tab-control" href="#tab-2">County-Level</a></li>
+				<li               ><a class="tab-control" href="#index">Index</a></li>
 				<li><a id="closebtn" class="tab-control" href="javascript:void(0)" onclick="closeNav()">&times;</a></li>
 			</ul>
 
@@ -76,6 +77,15 @@
 				<input id="btnUpdateCountyLevelDisplay"  type="button" value="Display Stats">
 				<div id="selected-county"></div>
 				<div id="d3chart"></div>
+			</div>
+
+			<!-- Index Tab -->
+			<div id="index" class="tab-panel">
+				<form id="index_form" action="" method="get">
+					 <select  id="index-list" multiple>
+					  <option value="volvo">Volvo</option>
+					</select> 
+				</form>
 			</div>
 
 		</div>
