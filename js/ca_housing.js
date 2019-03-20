@@ -379,7 +379,7 @@ function updateCountyLevelDisplay() {
 
 			var li = document.createElement("li");
 			li.appendChild(document.createTextNode("Number of Data Points: "));
-			li.appendChild(document.createTextNode(entryCount.toLocaleString())); 
+			li.appendChild(document.createTextNode(entryCount)); 
 			countyStats.appendChild(li);
 
 			var li = document.createElement("li");
@@ -431,6 +431,12 @@ function updateCountyLevelDisplay() {
 	    "ocean_proximity": -Number.MAX_VALUE,
 	    "county_name": -Number.MAX_VALUE
 	}
+	var low_color = {
+		"numOfData": null,
+		"population": null,
+		"median_income": null,
+		"median_house_value": null
+	};
 	var lowValues = {
 		"numOfData": Number.MAX_VALUE,
     	"longitude": Number.MAX_VALUE,
@@ -464,15 +470,23 @@ function updateCountyLevelDisplay() {
 				highValues['numOfData'] = numOfData_value;
 				high_color['numOfData'] = numOfData_il_node;
 			}
+			if(numOfData_value < lowValues['numOfData'])
+			{
+				lowValues['numOfData'] = numOfData_value;
+				low_color['numOfData'] = numOfData_il_node;
+			}
 
 			var population_il_node = county_ul_node.childNodes[1];
 			var population_value = parseFloat(population_il_node.childNodes[1].textContent);
 			if(population_value > highValues['population'])
 			{
-				console.log(population_value + ">" + highValues['population']);
-				console.log("population_value > highValues['population']::" + (population_value > highValues['population']) );
 				highValues['population'] = population_value;
 				high_color['population'] = population_il_node;
+			}
+			if(population_value < lowValues['population'])
+			{
+				lowValues['population'] = population_value;
+				low_color['population'] = population_il_node;
 			}
 
 			var median_income_il_node = county_ul_node.childNodes[2];
@@ -482,6 +496,11 @@ function updateCountyLevelDisplay() {
 				highValues['median_income'] = median_income_value;
 				high_color['median_income'] = median_income_il_node;
 			}
+			if(median_income_value < lowValues['median_income'])
+			{
+				lowValues['median_income'] = median_income_value;
+				low_color['median_income'] = median_income_il_node;
+			}
 
 			var median_house_value_il_node = county_ul_node.childNodes[3];
 			var median_house_value_value = parseFloat(median_house_value_il_node.childNodes[1].textContent);
@@ -490,6 +509,11 @@ function updateCountyLevelDisplay() {
 				highValues['median_house_value'] = median_house_value_value;
 				high_color['median_house_value'] = median_house_value_il_node;
 			}
+			if(median_house_value_value < lowValues['median_house_value'])
+			{
+				lowValues['median_house_value'] = median_house_value_value;
+				low_color['median_house_value'] = median_house_value_il_node;
+			}
 
 		}
 
@@ -497,6 +521,11 @@ function updateCountyLevelDisplay() {
 		high_color['population'].style.color = "green";
 		high_color['median_income'].style.color = "green";
 		high_color['median_house_value'].style.color = "green";
+
+		low_color['numOfData'].style.color = "red";
+		low_color['population'].style.color = "red";
+		low_color['median_income'].style.color = "red";
+		low_color['median_house_value'].style.color = "red";
 
 	}
 
