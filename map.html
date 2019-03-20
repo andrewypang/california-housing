@@ -13,7 +13,6 @@
 
 		<div id="data-box">
 			<h3 id="hover-label"></h3>
-
 		</div>
 
 		<a id="openbtn" class="tab-control" href="javascript:void(0)" onclick="openNav()">&times;</a>
@@ -28,25 +27,31 @@
 
 			<!-- TAB 1 -->
 			<div class="tab-panel active" id="tab-1">
-				<form id="selected_data_form" action="" method="get">
-					<p>Data to Consider:
-						<br />
-						<input type="checkbox" name="selected_data" value="housing_median_age">Housing Median Age
-						<input type="checkbox" name="selected_data" value="population">Population
-						<br />
-						<input type="checkbox" name="selected_data" value="median_income">Median Income
-						<input type="checkbox" name="selected_data" value="median_house_value">Median House Value
-					</p>
-				</form>
-				<div class="btnLayout">
-					<p>Select Overlay Style:</p>
-					<select disabled id="overlay_style">
-						<option value="None" selected="selected">None</option>
-						<option value="heatmap_1">Heatmap 1</option>
-					</select>
-					<input id="btnUpdateStateLevelDisplay"  type="button" value="Go!">
-				</div>
-
+				<ol>
+					<li>
+						<form id="selected_data_form" action="" method="get">
+							<p>Data to Consider:
+								<br />
+								<input type="checkbox" name="selected_data" value="housing_median_age">Housing Median Age
+								<input type="checkbox" name="selected_data" value="population">Population
+								<br />
+								<input type="checkbox" name="selected_data" value="median_income">Median Income
+								<input type="checkbox" name="selected_data" value="median_house_value">Median House Value
+							</p>
+						</form>
+					</li>
+					<li>
+						<p>Select Overlay Style:</p>
+						<select disabled id="overlay_style">
+							<option value="None" selected="selected">None</option>
+							<option value="heatmap_1">Heatmap 1</option>
+						</select>
+					</li>
+					<li>
+						<input id="btnUpdateStateLevelDisplay"  type="button" value="Go!">
+					</li>
+						
+				</ol>
 			</div>
 
 			<!-- TAB 2 -->

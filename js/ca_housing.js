@@ -236,6 +236,7 @@ function mergeDatasets(){
 function updateCountyLevelDisplay() {
 
 	// DIV = selected-county
+	//clear1
 	var list = document.getElementById("selected-county");
 	while (list.firstChild)
 	{

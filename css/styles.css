@@ -81,21 +81,35 @@ html, body {
   color: #666;
   min-height: 150px;
   overflow: auto;
-  min-height: 350px;
+  /*min-height: 350px;*/
+  max-height: 420px;
 }
 
 .tab-panel.active {
   display: block;
 }
 
+.tab-panel ol {
+	margin-left: 20px;
+	padding:0px;
+}
+
+.tab-panel li {
+  margin: 10px;
+}
+
 .tab-panel p {
-  margin: 20px;
+	margin-left: 10px;
 }
 
 #index-list {
 	width: 250px;
 	height: 300px;
 	margin: 20px;
+}
+
+#selected-county-list li {
+	margin: 0px;
 }
 
 #overlay_select {
@@ -130,7 +144,6 @@ html, body {
 	float: left;
 	display: inline-flex;
 	background-color: #e5e5e5;
-
 }
 
 #color-key {
@@ -198,3 +211,10 @@ html, body {
 	margin-left: 10px;
 }
 
+#overlay_style {
+	margin-left: 0px;
+}
+
+#btnUpdateStateLevelDisplay {
+	margin-left: 0px;
+}
