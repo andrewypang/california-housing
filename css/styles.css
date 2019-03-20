@@ -79,7 +79,7 @@ html, body {
   color: #666;
   min-height: 150px;
   overflow: auto;
-  height: 400px;
+  min-height: 350px;
 }
 
 .tab-panel.active {
@@ -93,7 +93,7 @@ html, body {
 #index-list {
 	width: 250px;
 	height: 300px;
-	margin-left: 20px;
+	margin: 20px;
 }
 
 .nicebox {
@@ -126,10 +126,6 @@ html, body {
 #btnUpdateCountyLevelDisplay {
 	height: 20px;
 	margin-top: 10px;
-}
-
-#overlay_style {
-
 }
 
 #legend { 

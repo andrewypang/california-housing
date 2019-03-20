@@ -6,17 +6,8 @@
 		<meta charset="utf-8">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
-		<!-- Include Google Maps JS API -->
-		<!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCriTc-URJTbKpAu2HUu4LGL5XEX9cYO8M&callback=initMap" type="text/javascript"></script>-->
 
 		<link href="css/styles.css" type="text/css" rel="stylesheet" />
-
-		<!-- <input id="btnResetZoom" type="button" value="Reset Zoom">
-		<input id="btnZoomToSC"  type="button" value="Zoom To Santa Cruz">
-		<input id="btnZoomToSJ"  type="button" value="Zoom To San Jose">
-		<input id="btnZoomToSF"  type="button" value="Zoom To San Francisco">
-		<input id="btnZoomToLA"  type="button" value="Zoom To Los Angeles"> -->
-
 
 	</head>
 	<body>
@@ -55,7 +46,6 @@
 					<select disabled id="overlay_style">
 						<option value="None" selected="selected">None</option>
 						<option value="heatmap_1">Heatmap 1</option>
-						<option value="heatmap_2">Heatmap 2</option>
 					</select>
 					<input id="btnUpdateStateLevelDisplay"  type="button" value="Go!">
 				</div>
@@ -77,7 +67,7 @@
 
 			<!-- Index Tab -->
 			<div id="index" class="tab-panel">
-				<p>List of Counties:</p>
+				<p style="margin-bottom: 0px;">List of Counties:</p>
 				<form id="index_form" action="" method="get">
 					<select  id="index-list" multiple="multiple"></select> 
 				</form>

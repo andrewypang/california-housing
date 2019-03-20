@@ -96,31 +96,25 @@ function initMap(){
 
 /** Removes census data from each shape on the map and resets the UI. */
 function clearCensusData() {
-	censusMin = Number.MAX_VALUE;
-	censusMax = -Number.MAX_VALUE;
-	map.data.forEach(function(row){
-		row.setProperty('census_variable', undefined);
-	});
-
 	//Clear markers and heatmap
-	if(housingCluster != null)
-	{
-		housingCluster.clearMarkers();
-	}
+	// if(housingCluster != null)
+	// {
+	// 	housingCluster.clearMarkers();
+	// }
 	if(heatmap != null)
 	{
 		//heatmap.getMap() != null
 		heatmap.setMap(null);
 	}
-	if(dataLayer.length != 0)
-	{
-		for(var i = 0; i < dataLayer.length; i++)
-		{
-			dataLayer[i].setMap(null);
-			dataLayer[i] = null;
-		}
-		dataLayer = [];
-	}
+	// if(dataLayer.length != 0)
+	// {
+	// 	for(var i = 0; i < dataLayer.length; i++)
+	// 	{
+	// 		dataLayer[i].setMap(null);
+	// 		dataLayer[i] = null;
+	// 	}
+	// 	dataLayer = [];
+	// }
 }
 
 function loadCensusData(variable) {
