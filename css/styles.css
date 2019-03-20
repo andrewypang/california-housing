@@ -90,6 +90,12 @@ html, body {
   margin: 20px;
 }
 
+#index-list {
+	width: 250px;
+	height: 300px;
+	margin-left: 20px;
+}
+
 .nicebox {
 	position: absolute;
 	text-align: center;
@@ -178,6 +184,10 @@ html, body {
 #selected-county-list {
 	height: 75px;
 	overflow-y: scroll;
+	background-color: #ededed;
+	border: 2px solid #666;
+	margin-right: 10px;
+	margin-left: 10px;
 }
 
 #selected-county {
@@ -197,3 +207,8 @@ html, body {
 .housing-entry {
 	padding-right: 20px;
 }
+
+.btnLayout {
+	margin-left: 10px;
+}
+

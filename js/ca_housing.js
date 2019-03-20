@@ -81,6 +81,8 @@ function initMap(){
 
 	parseGeoJSON();
 
+	
+
 	//mergeDatasets(); //Call only if needed ie when moving one dataset value to another
 
 	$(document).ready()
@@ -635,6 +637,8 @@ function startButtonEvents () {
 	// document.getElementById('btnZoomToLA').addEventListener('click', function(){ zoomToLosAngeles(); });
 	document.getElementById('btnUpdateCountyLevelDisplay').addEventListener('click', function(){ updateCountyLevelDisplay(); });
 	document.getElementById('btnUpdateStateLevelDisplay').addEventListener('click', function(){ updateStateLevelDisplay(); });
+	document.getElementById('btnClearSelection').addEventListener('click', function(){ clearSelection(); });
+	
 	
 }
 
@@ -648,6 +652,7 @@ function parseGeoJSON() {
 	    dataType: "json",
 	    success: function(json) {
 	    	map.data.addGeoJson(json);
+	    	initIndex();
 	    },
 	    error: function (xhr, textStatus, errorThrown) {
 	        console.log("parseGeoJSON: Error: " + xhr + textStatus);
@@ -673,19 +678,7 @@ function parseGeoJSON() {
     map.data.addListener('click', function(event) {
     	event.feature.setProperty('isColorful', !(event.feature.getProperty('isColorful')) );
 
-    	var list_node = document.getElementById('selected-county-list');
-    	while (list_node.firstChild)
-    	{
-    	    list_node.removeChild(list_node.firstChild);
-    	}
-
-    	map.data.forEach(function(feature) {
-    		if(feature.getProperty('isColorful')) {
-    			var li = document.createElement("li");
-    			li.appendChild(document.createTextNode( feature.getProperty('NAME') ));
-    			list_node.appendChild(li);
-    		}
-    	});
+    	updateSelectedCountyList();
 
     });
 
@@ -698,9 +691,22 @@ function parseGeoJSON() {
     	document.getElementById('hover-label').textContent = "";
     });
 
-    //map.data.getFeatureById(stateId).setProperty('census_variable', censusVariable);
+}
 
+function updateSelectedCountyList() {
+	var list_node = document.getElementById('selected-county-list');
+	while (list_node.firstChild)
+	{
+	    list_node.removeChild(list_node.firstChild);
+	}
 
+	map.data.forEach(function(feature) {
+		if(feature.getProperty('isColorful')) {
+			var li = document.createElement("li");
+			li.appendChild(document.createTextNode( feature.getProperty('NAME') ));
+			list_node.appendChild(li);
+		}
+	});
 }
 
 function parseHousingDataJSON() {
@@ -788,3 +794,52 @@ function closeNav() {
   document.getElementById("mySidenav").style.width = "0";
 }
 
+function initIndex() {
+	var index_list_node = document.getElementById("index-list");
+
+	map.data.forEach(function(feature){
+		var option = document.createElement("option");
+		option.text = feature.getProperty("NAME");
+		index_list_node.add(option);
+	});
+
+	// Sort options
+	$(function() {
+	  // choose target dropdown
+	  var select = $('#index-list');
+	  select.html(select.find('option').sort(function(x, y) {
+	    // to change to descending order switch "<" for ">"
+	    return $(x).text() > $(y).text() ? 1 : -1;
+	  }));
+	});
+
+	index_list_node.addEventListener('click', function(event){
+
+		clearSelection();
+
+		var listOfCountyNames = $('#index-list').val();
+
+		for(var i = 0; i < listOfCountyNames.length; i++)
+		{
+			map.data.forEach( function(entry)
+			{
+				if(entry.getProperty('NAME') == listOfCountyNames[i])
+				{
+					entry.setProperty('isColorful', true );
+				}
+			});
+
+		}
+
+		updateSelectedCountyList();
+	});
+
+}
+
+function clearSelection() {
+	map.data.forEach(function(entry){
+		entry.setProperty('isColorful', false );
+	});
+
+	updateSelectedCountyList();
+}
