@@ -1,9 +1,10 @@
-var startDate = new Date();
-
-var CensusDataAPIKey = "42518e77865b671d0fe762fdf3151be2209dd058";
-var ZOOM_OUT = 6;
-var ZOOM_IN = 9;
-
+/*
+ *
+ * Andrew Pang
+ * anypang@ucsc.edu
+ * CMPS161 - Intro to Data visualization
+ *
+ */
 
 //Defining map as a global variable to access from other functions
 var map;
@@ -17,6 +18,8 @@ var dataset_housing = {
 var housingCluster = null;
 var heatmap = null;
 var dataLayer = [];
+var ZOOM_OUT = 6;
+var ZOOM_IN = 9;
 
 function initMap(){
 	var centerOfCali = new google.maps.LatLng(37.229722, -119.509444);
@@ -38,6 +41,7 @@ function initMap(){
 		disableDoubleClickZoom: true,
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
+
 	//Getting map DOM element
 	var mapElement = document.getElementById('mapDiv');
 	//Creating a map with DOM element which is just obtained
@@ -65,78 +69,23 @@ function initMap(){
 	  });
 	});
 
-
-	// wire up the button
-    //var selectBox = document.getElementById('state-level-overlay-select');
-    // google.maps.event.addDomListener(selectBox, 'change', function() {
-    //     clearCensusData();
-    //     loadCensusData(selectBox.options[selectBox.selectedIndex].value);
-    // });
-
-    // google.maps.event.addDomListener(selectBox, 'zoom_changed', function() {
-
-    // });
-
 	parseHousingDataJSON();
 
 	parseGeoJSON();
 
-	
-
-	//mergeDatasets(); //Call only if needed ie when moving one dataset value to another
-
-	$(document).ready()
-	{
-		var endDate   = new Date();
-		console.log("Secs:"+(endDate.getTime() - startDate.getTime()) / 1000);
-	}
+	startButtonEvents();
 
 
 }
 
-/** Removes census data from each shape on the map and resets the UI. */
-function clearCensusData() {
-	//Clear markers and heatmap
-	// if(housingCluster != null)
-	// {
-	// 	housingCluster.clearMarkers();
-	// }
+/** Clear heatmap */
+function clearHeatMap() {
 	if(heatmap != null)
 	{
 		//heatmap.getMap() != null
 		heatmap.setMap(null);
 	}
-	// if(dataLayer.length != 0)
-	// {
-	// 	for(var i = 0; i < dataLayer.length; i++)
-	// 	{
-	// 		dataLayer[i].setMap(null);
-	// 		dataLayer[i] = null;
-	// 	}
-	// 	dataLayer = [];
-	// }
 }
-
-function loadCensusData(variable) {
-	var dataMin = Number.MAX_VALUE;
-	var dataMinName = "";
-	var dataMax = -Number.MAX_VALUE;
-	var dataMaxName = "";
-	var dataMinMarker;
-	var dataMaxMarker;
-
-	if(variable == "None")
-	{
-
-	}
-	else if(variable == "HouseMarkers")
-	{
-		
-	}
-
-
-}
-
 
 function resetZoom() {
 	centerOfCali = map.center;
@@ -168,6 +117,7 @@ function zoomToLosAngeles() {
        map.setZoom(ZOOM_IN);
 }
 
+//Call only if needed ie when moving one dataset value to another
 function mergeDatasets(){
 	var entryCounter = 0;
 	var temp = [];
@@ -228,22 +178,21 @@ function mergeDatasets(){
 	var a       = document.createElement('a');
 	a.href      = 'data:' + data;
 	a.download  = 'data.json';
-	a.innerHTML = 'download .txt file of json';
+	a.innerHTML = 'download .json file';
 
-	document.getElementById('tab-2').appendChild(a);
+	document.getElementById('index').appendChild(a);
 }
 
-function updateCountyLevelDisplay() {
+function updateCountyLevelStats() {
 
-	// DIV = selected-county
-	//clear1
-	var list = document.getElementById("selected-county");
+	// DIV = selected-county-stats
+	var list = document.getElementById("selected-county-stats");
 	while (list.firstChild)
 	{
 	    list.removeChild(list.firstChild);
 	}
 
-	var countyList = document.getElementById("selected-county");
+	var countyList = document.getElementById("selected-county-stats");
 	var subCountyArray = [];
 
 	map.data.forEach(function(feature_county) {
@@ -325,12 +274,6 @@ function updateCountyLevelDisplay() {
 
 			countyList.appendChild(county);
 		}
-
-	// DIV = d3chart
-	// var canvas = d3.select("#d3chart")
-	// 			.append("svg:svg")
-	// 			.attr("width", 300)
-	// 			.attr("height", 300);
 
 	});  // close For Each map.data
 
@@ -460,16 +403,8 @@ function updateStateLevelDisplay() {
 		var elements = form.elements;
 		var options = elements.selected_data;
 
-		for(var i = 0; i < options.length; i++)
-		{
-			if(options[i].checked == true)
-			{
-				console.log(options[i].value + " is selected");
-			}
-		}
-
 		// Clear any old data selection
-		clearCensusData();
+		clearHeatMap();
 
 		// If heatmap was selected
 		if(document.getElementById("state-level-overlay-select").value == "heatmap_1")
@@ -511,7 +446,6 @@ function updateStateLevelDisplay() {
 				map: map
 			});
 
-			console.log("Success! Loaded Heatmap 1");
 		}
 
 	}());
@@ -519,13 +453,11 @@ function updateStateLevelDisplay() {
 }
 
 function startButtonEvents () {
-	document.getElementById('btnUpdateCountyLevelDisplay').addEventListener('click', function(){ updateCountyLevelDisplay(); });
+	document.getElementById('btnUpdateCountyLevelDisplay').addEventListener('click', function(){ updateCountyLevelStats(); });
 	document.getElementById('btnUpdateStateLevelDisplay').addEventListener('click', function(){ updateStateLevelDisplay(); });
 	document.getElementById('btnDrawMarkers').addEventListener('click', function(){ drawMarkers(); });
 	document.getElementById('btnClearSelection').addEventListener('click', function(){ clearSelection(); });
 }
-
-startButtonEvents();
 
 function parseGeoJSON() {
 	$.ajax({
@@ -595,8 +527,6 @@ function updateSelectedCountyList() {
 function parseHousingDataJSON() {
 	// Read in housing data from JSON file
 	$.getJSON("datasets/dataset_housing_pp.json", function(raw_json) {
-	    //console.log(json); // this will show the info it in firebug console
-	    //dataset_housing = json;
 	    var tempHousingArrayHolder = [];
 	    var maxValues = {
 	    	"longitude": -Number.MAX_VALUE,
@@ -688,10 +618,8 @@ function initIndex() {
 
 	// Sort options
 	$(function() {
-	  // choose target dropdown
 	  var select = $('#index-list');
 	  select.html(select.find('option').sort(function(x, y) {
-	    // to change to descending order switch "<" for ">"
 	    return $(x).text() > $(y).text() ? 1 : -1;
 	  }));
 	});
@@ -701,7 +629,6 @@ function initIndex() {
 		clearSelection();
 
 		var listOfCountyNames = $('#index-list').val();
-
 		for(var i = 0; i < listOfCountyNames.length; i++)
 		{
 			map.data.forEach( function(entry)
@@ -726,13 +653,23 @@ function clearSelection() {
 
 	updateSelectedCountyList();
 
+	updateCountyLevelStats();
+
+	clearMarkerCluster();
+
+}
+
+function clearMarkerCluster() {
 	if(housingCluster != null)
 	{
 		housingCluster.clearMarkers();
 	}
+
 }
 
 function drawMarkers() {
+
+		clearMarkerCluster();
 
 		var markers = [];
 		
