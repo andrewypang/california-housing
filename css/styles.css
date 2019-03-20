@@ -25,6 +25,7 @@ html, body {
   color: #f2f2f2;
   padding: 3px 10px 3px 10px;
   font-family: 'Jacques Francois', serif;
+  box-shadow: 0 4px 6px -4px #333;
 }
 
 .tabs {
@@ -33,6 +34,7 @@ html, body {
 	z-index: 5;
 	overflow-x: hidden; /* Disable horizontal scroll */
 	transition: 0.5s;
+	box-shadow: 0 4px 6px -4px #333;
 }
 
 
@@ -96,30 +98,22 @@ html, body {
 	margin: 20px;
 }
 
-.nicebox {
-	position: absolute;
-	text-align: center;
-	font-family: "Roboto", "Arial", sans-serif;
-	font-size: 14px;
-	z-index: 5;
-	box-shadow: 0 4px 6px -4px #333;
-	padding: 5px 10px;
-	background: rgb(255,255,255);
-	background: linear-gradient(to bottom,rgba(255,255,255,1) 0%,rgba(245,245,245,0.9) 100%);
-	border: rgb(229, 229, 229) 1px solid;
-
-}
-
 #overlay_select {
 
 }
 
 #data-box {
+	position: absolute;
 	top: 100px;
-	left: 10px;
 	text-align: center;
 	display: block;
 	height: 50px;
+	z-index: 5;
+	box-shadow: 0 4px 6px -4px #333;
+	font-family: 'Jacques Francois', serif;
+	background-color: #e5e5e5;
+	color: #666;
+
 
 }
 
@@ -136,7 +130,6 @@ html, body {
 	float: left;
 	display: inline-flex;
 	background-color: #e5e5e5;
-
 
 }
 
@@ -160,9 +153,9 @@ html, body {
 }
 
 #hover-label { 
-	font-size: 14px; 
+	font-size: 16px; 
 	font-weight: bold; 
-	width: 200px;
+	width: 250px;
 	height: 35px;
 	display: block;
 }
@@ -184,10 +177,6 @@ html, body {
 	border: 2px solid #666;
 	margin-right: 10px;
 	margin-left: 10px;
-}
-
-#selected-county {
-
 }
 
 .county-stats {
