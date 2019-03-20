@@ -797,6 +797,7 @@ function drawMarkers() {
 							position: entry_position,
 							opacity: 0.5,
 							clickable: true,
+							animation: google.maps.Animation.DROP,
 							map: map
 						};
 
@@ -837,7 +838,8 @@ function drawMarkers() {
 
 		var MarkerClustererOptions = {
 			imagePath: 'images/m', 
-			zoomOnClick: false, 
+			zoomOnClick: false,
+			animation: google.maps.Animation.DROP,
 			minimumClusterSize: 3
 		};
 
