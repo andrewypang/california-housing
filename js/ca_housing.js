@@ -137,81 +137,8 @@ function loadCensusData(variable) {
 	}
 	else if(variable == "HouseMarkers")
 	{
-		//NEED TO CHANGE HOUSE MARKERS TO COUNTY LEVEL
-		// O(n)
-
-		var startTemp = new Date();
-
-		var markers = [];
-		dataset_housing['data'].forEach( function(entry) {
-			var entry_position = new google.maps.LatLng(entry.latitude, entry.longitude);
-
-			var MarkerOptions = {
-				position: entry_position,
-				opacity: 0.5,
-				clickable: true,
-				map: map
-			};
-
-	  		var numberFormatter = new Intl.NumberFormat();
-	  		var moneyFormatter = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD', currencyDisplay: 'symbol'});
-
-	  		var contentString = '<div class="housing-entry">' +
-	  							'<ul>' + 
-	  								'<li>' + 'Coordinates: (' + entry.latitude + ',' + entry.longitude + ')' + '</li>' +
-	  								'<li>' + 'Housing Median Age: '+ numberFormatter.format(entry.housing_median_age) + '</li>' +
-	  								'<li>' + 'Total Rooms: ' + numberFormatter.format(entry.total_rooms) + '</li>' +
-	  								'<li>' + 'Total Bedrooms: ' +  (entry.total_bedrooms == null ? 'N/A' : numberFormatter.format(entry.total_bedrooms)) + '</li>' +
-	  								'<li>' + 'Population: ' + numberFormatter.format(entry.population) + '</li>' +
-	  								'<li>' + 'Households: ' + numberFormatter.format(entry.households) + '</li>' +
-	  								'<li>' + 'Median Income: ' + moneyFormatter.format(entry.median_income*10000) + '</li>' +
-	  								'<li>' + 'Median House Value: ' + moneyFormatter.format(entry.median_house_value) + '</li>' +
-	  								'<li>' + 'Ocean Proximity: '+ entry.ocean_proximity + '</li>' +
-	  							'</ul>' +
-	          				    '</div>';
-
-	        var infowindow = new google.maps.InfoWindow({
-				content: contentString,
-				maxWidth: 350
-	        });
-
-			var marker = new google.maps.Marker(MarkerOptions);
-
-			marker.addListener('click', function() {
-			  infowindow.open(map, marker);
-			});
-
-			markers.push(marker);
-		});
-
-		var MarkerClustererOptions = {
-			imagePath: 'images/m', 
-			zoomOnClick: false, 
-			minimumClusterSize: 3
-		};
-
-		housingCluster = new MarkerClusterer(map, markers, MarkerClustererOptions);
-		console.log("Success! Loaded House Markers");
-
-		var endTemp   = new Date();
-		console.log("Secs:"+(endTemp.getTime() - startTemp.getTime()) / 1000);
+		
 	}
-
-	// if( dataMin != Number.MAX_VALUE || dataMax != -Number.MAX_VALUE)
-	// {
-	// 	// update and display the legend
-	// 	document.getElementById('census-min').textContent = dataMin.toLocaleString();
-	// 	document.getElementById('census-max').textContent = dataMax.toLocaleString();
-
-	// 	//document.getElementById('data-box').style.display = 'block';
-	// }
-	// else
-	// {
-	// 	// reset back to default min & max
-	// 	document.getElementById('census-min').textContent = "min";
-	// 	document.getElementById('census-max').textContent = "max";
-	// 	//document.getElementById('data-box').style.display = 'none';
-	// }
 
 
 }
@@ -637,6 +564,7 @@ function startButtonEvents () {
 	// document.getElementById('btnZoomToLA').addEventListener('click', function(){ zoomToLosAngeles(); });
 	document.getElementById('btnUpdateCountyLevelDisplay').addEventListener('click', function(){ updateCountyLevelDisplay(); });
 	document.getElementById('btnUpdateStateLevelDisplay').addEventListener('click', function(){ updateStateLevelDisplay(); });
+	document.getElementById('btnDrawMarkers').addEventListener('click', function(){ drawMarkers(); });
 	document.getElementById('btnClearSelection').addEventListener('click', function(){ clearSelection(); });
 	
 	
@@ -842,4 +770,77 @@ function clearSelection() {
 	});
 
 	updateSelectedCountyList();
+
+	if(housingCluster != null)
+	{
+		housingCluster.clearMarkers();
+	}
+}
+
+function drawMarkers() {
+
+		var markers = [];
+		
+		map.data.forEach(function(countyEntry) {
+			if(countyEntry.getProperty('isColorful'))
+			{
+				var countyName = countyEntry.getProperty('NAME');
+
+				dataset_housing['data'].forEach(function(housingEntry) {
+					// Find matching county names between two datasets
+					if(housingEntry["county_name"] == countyName)
+					{
+						//Create marker in found match
+						var entry_position = new google.maps.LatLng(housingEntry.latitude, housingEntry.longitude);
+
+						var MarkerOptions = {
+							position: entry_position,
+							opacity: 0.5,
+							clickable: true,
+							map: map
+						};
+
+						var numberFormatter = new Intl.NumberFormat();
+				  		var moneyFormatter = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD', currencyDisplay: 'symbol'});
+
+				  		var contentString = '<div class="housing-entry">' +
+				  							'<ul>' + 
+				  								'<li>' + 'Coordinates: (' + housingEntry.latitude + ',' + housingEntry.longitude + ')' + '</li>' +
+				  								'<li>' + 'Housing Median Age: '+ numberFormatter.format(housingEntry.housing_median_age) + '</li>' +
+				  								'<li>' + 'Total Rooms: ' + numberFormatter.format(housingEntry.total_rooms) + '</li>' +
+				  								'<li>' + 'Total Bedrooms: ' +  (housingEntry.total_bedrooms == null ? 'N/A' : numberFormatter.format(housingEntry.total_bedrooms)) + '</li>' +
+				  								'<li>' + 'Population: ' + numberFormatter.format(housingEntry.population) + '</li>' +
+				  								'<li>' + 'Households: ' + numberFormatter.format(housingEntry.households) + '</li>' +
+				  								'<li>' + 'Median Income: ' + moneyFormatter.format(housingEntry.median_income*10000) + '</li>' +
+				  								'<li>' + 'Median House Value: ' + moneyFormatter.format(housingEntry.median_house_value) + '</li>' +
+				  								'<li>' + 'Ocean Proximity: '+ housingEntry.ocean_proximity + '</li>' +
+				  							'</ul>' +
+				          				    '</div>';
+
+				        var infowindow = new google.maps.InfoWindow({
+							content: contentString,
+							maxWidth: 350
+				        });
+
+				        var marker = new google.maps.Marker(MarkerOptions);
+
+			        	marker.addListener('click', function() {
+			        	  infowindow.open(map, marker);
+			        	});
+
+			        	markers.push(marker);
+
+					}
+				});
+			}
+		});
+
+		var MarkerClustererOptions = {
+			imagePath: 'images/m', 
+			zoomOnClick: false, 
+			minimumClusterSize: 3
+		};
+
+		housingCluster = new MarkerClusterer(map, markers, MarkerClustererOptions);
+
 }
