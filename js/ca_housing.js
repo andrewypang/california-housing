@@ -411,7 +411,7 @@ function updateCountyLevelDisplay() {
 	});  // close For Each map.data
 
 	// Color Stats
-	var high_color = {
+	var highValueNodeList = {
 		"numOfData": null,
 		"population": null,
 		"median_income": null,
@@ -431,7 +431,7 @@ function updateCountyLevelDisplay() {
 	    "ocean_proximity": -Number.MAX_VALUE,
 	    "county_name": -Number.MAX_VALUE
 	}
-	var low_color = {
+	var lowValueNodeList = {
 		"numOfData": null,
 		"population": null,
 		"median_income": null,
@@ -452,8 +452,6 @@ function updateCountyLevelDisplay() {
 	    "county_name": Number.MAX_VALUE
 	}
 
-	//var numOfData_high = -Number.MAX_VALUE;
-	var population_high;
 	var countyElements = document.getElementsByClassName('county');
 	if(countyElements.length > 1)
 	{
@@ -468,12 +466,12 @@ function updateCountyLevelDisplay() {
 			if(numOfData_value > highValues['numOfData'])
 			{
 				highValues['numOfData'] = numOfData_value;
-				high_color['numOfData'] = numOfData_il_node;
+				highValueNodeList['numOfData'] = numOfData_il_node;
 			}
 			if(numOfData_value < lowValues['numOfData'])
 			{
 				lowValues['numOfData'] = numOfData_value;
-				low_color['numOfData'] = numOfData_il_node;
+				lowValueNodeList['numOfData'] = numOfData_il_node;
 			}
 
 			var population_il_node = county_ul_node.childNodes[1];
@@ -481,12 +479,12 @@ function updateCountyLevelDisplay() {
 			if(population_value > highValues['population'])
 			{
 				highValues['population'] = population_value;
-				high_color['population'] = population_il_node;
+				highValueNodeList['population'] = population_il_node;
 			}
 			if(population_value < lowValues['population'])
 			{
 				lowValues['population'] = population_value;
-				low_color['population'] = population_il_node;
+				lowValueNodeList['population'] = population_il_node;
 			}
 
 			var median_income_il_node = county_ul_node.childNodes[2];
@@ -494,12 +492,12 @@ function updateCountyLevelDisplay() {
 			if(median_income_value > highValues['median_income'])
 			{
 				highValues['median_income'] = median_income_value;
-				high_color['median_income'] = median_income_il_node;
+				highValueNodeList['median_income'] = median_income_il_node;
 			}
 			if(median_income_value < lowValues['median_income'])
 			{
 				lowValues['median_income'] = median_income_value;
-				low_color['median_income'] = median_income_il_node;
+				lowValueNodeList['median_income'] = median_income_il_node;
 			}
 
 			var median_house_value_il_node = county_ul_node.childNodes[3];
@@ -507,25 +505,25 @@ function updateCountyLevelDisplay() {
 			if(median_house_value_value > highValues['median_house_value'])
 			{
 				highValues['median_house_value'] = median_house_value_value;
-				high_color['median_house_value'] = median_house_value_il_node;
+				highValueNodeList['median_house_value'] = median_house_value_il_node;
 			}
 			if(median_house_value_value < lowValues['median_house_value'])
 			{
 				lowValues['median_house_value'] = median_house_value_value;
-				low_color['median_house_value'] = median_house_value_il_node;
+				lowValueNodeList['median_house_value'] = median_house_value_il_node;
 			}
 
 		}
 
-		high_color['numOfData'].style.color = "green";
-		high_color['population'].style.color = "green";
-		high_color['median_income'].style.color = "green";
-		high_color['median_house_value'].style.color = "green";
+		highValueNodeList['numOfData'].style.color = "green";
+		highValueNodeList['population'].style.color = "green";
+		highValueNodeList['median_income'].style.color = "green";
+		highValueNodeList['median_house_value'].style.color = "green";
 
-		low_color['numOfData'].style.color = "red";
-		low_color['population'].style.color = "red";
-		low_color['median_income'].style.color = "red";
-		low_color['median_house_value'].style.color = "red";
+		lowValueNodeList['numOfData'].style.color = "red";
+		lowValueNodeList['population'].style.color = "red";
+		lowValueNodeList['median_income'].style.color = "red";
+		lowValueNodeList['median_house_value'].style.color = "red";
 
 	}
 
@@ -573,7 +571,6 @@ function updateStateLevelDisplay() {
 						entry_weight += entry[options[i].value];
 					}
 				}
-
 
 				var weightedLoc = {
 				    location: entry_position,
