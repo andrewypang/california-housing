@@ -67,7 +67,7 @@ function initMap(){
 
 
 	// wire up the button
-    //var selectBox = document.getElementById('overlay_style');
+    //var selectBox = document.getElementById('state-level-overlay-select');
     // google.maps.event.addDomListener(selectBox, 'change', function() {
     //     clearCensusData();
     //     loadCensusData(selectBox.options[selectBox.selectedIndex].value);
@@ -472,7 +472,7 @@ function updateStateLevelDisplay() {
 		clearCensusData();
 
 		// If heatmap was selected
-		if(document.getElementById("overlay_style").value == "heatmap_1")
+		if(document.getElementById("state-level-overlay-select").value == "heatmap_1")
 		{
 			var heatmapData = [];
 			var dataMinMarker;
@@ -513,56 +513,16 @@ function updateStateLevelDisplay() {
 
 			console.log("Success! Loaded Heatmap 1");
 		}
-		else if(document.getElementById("overlay_style").value == "heatmap_2")
-		{
-			//var low_color = hsla(5, 69%, 54%, 0.1);
-			//console.log(low_color);
-
-			var min_color = [5, 69, 64];
-			var max_color = [151, 83, 34];
-
-			var value_to_consider
-
-			map.data.setStyle(function(feature){
-
-				//delta represents where the value sits between the min and max
-				var delta = (entry.population - dataset_housing['analyze']['minValues']['population'] ) / (dataset_housing['analyze']['maxValues']['population'] - dataset_housing['analyze']['minValues']['population']);
-
-
-			  	var color = [];
-			  	for (var i = 0; i < 3; i++) {
-                  	// calculate an integer color based on the delta
-                  	color[i] = (max_color[i] - min_color[i]) * delta + min_color[i];
-              	}
-
-
-			  	return /** @type {!google.maps.Data.StyleOptions} */({
-				    fillColor: 'hsl(' + color[0] + ',' + color[1] + '%,' + color[2] + '%)',
-				    strokeColor: color,
-				    fillOpacity: 0.1,
-				    strokeOpacity: 0.1,
-				    strokeWeight: 2
-			  	});
-			});
-		}
-		
 
 	}());
 
 }
 
 function startButtonEvents () {
-	// document.getElementById('btnResetZoom').addEventListener('click', function(){ resetZoom(); });
-	// document.getElementById('btnZoomToSC').addEventListener('click', function(){ zoomToSantaCruz(); });
-	// document.getElementById('btnZoomToSJ').addEventListener('click', function(){ zoomToSanJose(); });
-	// document.getElementById('btnZoomToSF').addEventListener('click', function(){ zoomToSanFrancisco(); });
-	// document.getElementById('btnZoomToLA').addEventListener('click', function(){ zoomToLosAngeles(); });
 	document.getElementById('btnUpdateCountyLevelDisplay').addEventListener('click', function(){ updateCountyLevelDisplay(); });
 	document.getElementById('btnUpdateStateLevelDisplay').addEventListener('click', function(){ updateStateLevelDisplay(); });
 	document.getElementById('btnDrawMarkers').addEventListener('click', function(){ drawMarkers(); });
 	document.getElementById('btnClearSelection').addEventListener('click', function(){ clearSelection(); });
-	
-	
 }
 
 startButtonEvents();
@@ -702,7 +662,7 @@ function parseHousingDataJSON() {
 	    dataset_housing['analyze']['maxValues'] = maxValues;
 	    dataset_housing['analyze']['minValues'] = minValues;
 
-		document.getElementById("overlay_style").disabled = false;
+		document.getElementById("state-level-overlay-select").disabled = false;
 
 	});
 }
@@ -799,7 +759,7 @@ function drawMarkers() {
 						var numberFormatter = new Intl.NumberFormat();
 				  		var moneyFormatter = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD', currencyDisplay: 'symbol'});
 
-				  		var contentString = '<div class="housing-entry">' +
+				  		var contentString = '<div class="housing-entry-marker">' +
 				  							'<ul>' + 
 				  								'<li>' + 'Coordinates: (' + housingEntry.latitude + ',' + housingEntry.longitude + ')' + '</li>' +
 				  								'<li>' + 'Housing Median Age: '+ numberFormatter.format(housingEntry.housing_median_age) + '</li>' +

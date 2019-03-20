@@ -1,18 +1,47 @@
 html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
+/********** MAP **********/
 #mapDiv {
 	height: 100%;
 }
 
-#mySidenav {
-	width: auto;
-	transition: 0.5s;
+/********** GOOGLE MARKERS **********/
+.housing-entry-marker {
+	padding-right: 20px;
 }
 
+/********** HOVER BAR **********/
+#hover-box {
+	position: absolute;
+	top: 100px;
+	text-align: center;
+	display: block;
+	height: 50px;
+	z-index: 5;
+	box-shadow: 0 4px 6px -4px #333;
+	font-family: 'Jacques Francois', serif;
+	background-color: #e5e5e5;
+	color: #666;
+}
+
+#hover-label { 
+	font-size: 16px; 
+	font-weight: bold; 
+	width: 250px;
+	height: 35px;
+	display: block;
+}
+
+/********** BTN LAYOUTS **********/
+.btnLayout {
+	margin-left: 10px;
+}
+
+/********** OPEN/CLOSE SIDEBAR **********/
 #closebtn {
   letter-spacing: 0;
 }
@@ -28,16 +57,20 @@ html, body {
   box-shadow: 0 4px 6px -4px #333;
 }
 
+/********** LEFT SIDEBAR **********/
+#mySidenav {
+	width: auto;
+	transition: 0.5s;
+}
+
+/********** TAB HOLDER **********/
 .tabs {
 	position: absolute;
 	top: 200px;
 	z-index: 5;
 	overflow-x: hidden; /* Disable horizontal scroll */
-	transition: 0.5s;
 	box-shadow: 0 4px 6px -4px #333;
 }
-
-
 
 /********** TABS **********/
 .tab-list {
@@ -61,7 +94,6 @@ html, body {
   padding: 3px 10px 3px 10px;
 }
 
-
 /********** HOVER STATES **********/
 .tab-list li.active, .tab-list li.hover {
   background-color: #e5e5e5;
@@ -73,8 +105,7 @@ html, body {
   background-color: #e5e5e5;
 }
 
-
-/********** PANELS **********/
+/********** TAB PANELS **********/
 .tab-panel {
   display: none;
   background-color: #e5e5e5;
@@ -102,85 +133,23 @@ html, body {
 	margin-left: 10px;
 }
 
-#index-list {
-	width: 250px;
-	height: 300px;
-	margin: 20px;
+/********** STATLE-LEVEL TAB PANEL **********/
+#state-level-overlay-select {
 }
 
-#selected-county-list li {
-	margin: 0px;
+#btnUpdateStateLevelDisplay {
 }
 
-#overlay_select {
-
+/********** COUNTY-LEVEL TAB PANEL **********/
+.county {
+	border: rgb(229, 0, 50) 0px solid;
+	margin-left: 10px;
 }
 
-#data-box {
-	position: absolute;
-	top: 100px;
-	text-align: center;
-	display: block;
-	height: 50px;
-	z-index: 5;
-	box-shadow: 0 4px 6px -4px #333;
-	font-family: 'Jacques Francois', serif;
-	background-color: #e5e5e5;
-	color: #666;
-
-
-}
-
-#btnUpdateCountyLevelDisplay {
-	height: 20px;
-	margin-top: 10px;
-}
-
-#legend { 
-	padding-top: 0px;
-	position: absolute;
-	z-index: 5;
-	top: 80%;
-	float: left;
-	display: inline-flex;
-	background-color: #e5e5e5;
-}
-
-#color-key {
-	background-image: linear-gradient(to left,
-		hsl(5, 69%, 54%) 0%,
-		hsl(29, 71%, 51%) 17%,
-		hsl(54, 74%, 47%) 33%,
-		hsl(78, 76%, 44%) 50%,
-		hsl(102, 78%, 41%) 67%,
-		hsl(127, 81%, 37%) 83%,
-		hsl(151, 83%, 34%) 100%);
-	flex: 1;
-	-webkit-box-flex: 1;
-	margin: 0 5px;
+.county-stats {
 	text-align: left;
-	font-size: 1.0em;
-	line-height: 1.0em;
-	height: 20px;
-	width: 100px;
-}
+	padding-right: 30px;
 
-#hover-label { 
-	font-size: 16px; 
-	font-weight: bold; 
-	width: 250px;
-	height: 35px;
-	display: block;
-}
-#hover-value { 
-	font-size: 14px; 
-	font-weight: bold }
-
-#data-caret { 
-	margin-left: -5px; 
-	display: none; 
-	font-size: 14px; 
-	width: 14px
 }
 
 #selected-county-list {
@@ -192,29 +161,18 @@ html, body {
 	margin-left: 10px;
 }
 
-.county-stats {
-	text-align: left;
-	padding-right: 30px;
-
+#selected-county-list li {
+	margin: 0px;
 }
 
-.county {
-	border: rgb(229, 0, 50) 0px solid;
-	margin-left: 10px;
+#btnUpdateCountyLevelDisplay {
+	height: 20px;
+	margin-top: 10px;
 }
 
-.housing-entry {
-	padding-right: 20px;
-}
-
-.btnLayout {
-	margin-left: 10px;
-}
-
-#overlay_style {
-	margin-left: 0px;
-}
-
-#btnUpdateStateLevelDisplay {
-	margin-left: 0px;
+/********** INDEX TAB PANEL **********/
+#index-list {
+	width: 250px;
+	height: 300px;
+	margin: 20px;
 }
