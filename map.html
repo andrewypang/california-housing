@@ -28,10 +28,13 @@
 
 		</div>
 
-		<div class="tabs">
+		<a id="openbtn" class="tab-control" href="javascript:void(0)" onclick="openNav()">&times;</a>
+
+		<div id="mySidenav" class="tabs">
 			<ul class="tab-list">
 				<li class="active"><a class="tab-control" href="#tab-1">State-Level</a></li>
-				<li><a class="tab-control" href="#tab-2">County-Level</a></li>
+				<li               ><a class="tab-control" href="#tab-2">County-Level</a></li>
+				<li><a id="closebtn" class="tab-control" href="javascript:void(0)" onclick="closeNav()">&times;</a></li>
 			</ul>
 
 			<!-- TAB 1 -->
@@ -75,8 +78,8 @@
 				<div id="d3chart"></div>
 			</div>
 
-
 		</div>
+
 
 		<!-- <div id="legend">
 		  <div id="census-min">min</div>

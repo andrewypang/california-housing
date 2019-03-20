@@ -775,6 +775,16 @@ function parseHousingDataJSON() {
 
 		document.getElementById("overlay_style").disabled = false;
 
-		//console.log(dataset_housing['data'].length);
 	});
 }
+
+/* Set the width of the side navigation to 250px */
+function openNav() {
+  document.getElementById("mySidenav").style.width = "auto";
+}
+
+/* Set the width of the side navigation to 0 */
+function closeNav() {
+  document.getElementById("mySidenav").style.width = "0";
+}
+
