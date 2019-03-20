@@ -50,22 +50,15 @@
 						<input type="checkbox" name="selected_data" value="median_house_value">Median House Value
 					</p>
 				</form>
-				<div id="overlay_select" class="">
+				<div class="btnLayout">
 					<p>Select Overlay Style:</p>
-				  <div>
-					  <select disabled id="overlay_style">
-					  	<option value="None" selected="selected">None</option>
-					    <option value="heatmap_1">Heatmap 1</option>
-					    <option value="heatmap_2">Heatmap 2</option>
-
-					    <!-- <option value="HouseMarkers">House Markers</option>
-					    <option value="HeatmapWithPopulation">Heatmap with Population</option>
-					    <option value="HeatmapWithMedianIncome">Heatmap with Median-Income</option>
-					    <option value="HeatmapWithMedianHouseValue">Heatmap with Median House Value</option> -->
-					  </select>
-				  </div>
+					<select disabled id="overlay_style">
+						<option value="None" selected="selected">None</option>
+						<option value="heatmap_1">Heatmap 1</option>
+						<option value="heatmap_2">Heatmap 2</option>
+					</select>
+					<input id="btnUpdateStateLevelDisplay"  type="button" value="Go!">
 				</div>
-				<input id="btnUpdateStateLevelDisplay"  type="button" value="Go!">
 
 			</div>
 
@@ -85,10 +78,8 @@
 			<div id="index" class="tab-panel">
 				<p>List of Counties:</p>
 				<form id="index_form" action="" method="get">
-					 <select  id="index-list" multiple="multiple">
-					</select> 
+					<select  id="index-list" multiple="multiple"></select> 
 				</form>
-				<input id="btnClearSelection"  type="button" value="Clear Selection">
 			</div>
 
 		</div>
