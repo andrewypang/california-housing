@@ -134,7 +134,7 @@
 }
 
 .tab-panel ol {
-	margin-left: 20px;
+	margin-left: 35px;
 	padding:0px;
 }
 
@@ -148,9 +148,12 @@
 
 /********** STATLE-LEVEL TAB PANEL **********/
 #state-level-overlay-select {
+	margin-left: 10px;
 }
 
 #btnUpdateStateLevelDisplay {
+	margin-top: 10px;
+	margin-left: 8px;
 }
 
 /********** COUNTY-LEVEL TAB PANEL **********/

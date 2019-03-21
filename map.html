@@ -49,7 +49,7 @@
 						</form>
 					</li>
 					<li>
-						<p>Select Overlay Style:</p>
+						<p style="margin-bottom: 5px">Select Overlay Style:</p>
 						<select disabled id="state-level-overlay-select">
 							<option value="None" selected="selected">None</option>
 							<option value="heatmap_1">Heatmap 1</option>
@@ -64,13 +64,25 @@
 
 			<!-- TAB 2 -->
 			<div  id="tab-2" class="tab-panel">
-				<p>Selected County(s):</p>
-				<ul id="selected-county-list"></ul>
-				<div class="btnLayout">
-					<input id="btnUpdateCountyLevelDisplay"  type="button" value="Display Stats">
-					<input id="btnDrawMarkers"  type="button" value="Display Markers">
-					<input id="btnClearSelection"  type="button" value="Clear Selection">
-				</div>
+
+				<ol>
+					<li>
+						<p>Selected County(s):</p>
+						<ul id="selected-county-list"></ul>
+					</li>
+					<li>
+						<div class="btnLayout">
+							<input id="btnUpdateCountyLevelDisplay"  type="button" value="Display Stats">
+							<input id="btnDrawMarkers"  type="button" value="Display Markers">
+							<input id="btnClearSelection"  type="button" value="Clear Selection">
+						</div>
+					</li>
+				</ol>
+
+
+				
+				
+				<hr />
 				<div id="selected-county-stats"></div>
 			</div>
 
