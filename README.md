@@ -10,3 +10,5 @@ Technology Used:
 ## Highlights & Features
 
 Visualization of 1990 California Housing Prices derived from the 1990 United States Census
+
+![alt text](/report/map-main.png)
