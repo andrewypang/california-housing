@@ -9,10 +9,11 @@ Technology Used:
 
 ## Highlights & Features
 
-Visualization of 1990 California Housing Prices derived from the 1990 United States Census
+### Visualization of 1990 California Housing Prices derived from the 1990 United States Census
 
 ![map-main](/report/map-main.png)
 
+Population Heatmap
 ![heatmap-population](/report/state-level-heatmap-population.png)
 
 ![county-level-tab-markers](/report/county-level-tab-markers.png)
