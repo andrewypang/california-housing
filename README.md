@@ -16,6 +16,8 @@ Technology Used:
 Population Heatmap
 ![heatmap-population](/report/state-level-heatmap-population.png)
 
+Data points in a selected county. In this example: Santa Cruz County
 ![county-level-tab-markers](/report/county-level-tab-markers.png)
 
+Select multiple counties in the Index Tab. Here, San Jose and San Francisco is selected.
 ![index-tab-select](/report/index-tab-select.png)
