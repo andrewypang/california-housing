@@ -13,7 +13,7 @@ Technology Used:
 
 ![map-main](/report/map-main.png)
 
-Population Heatmap
+Population Heatmap of California. Areas in red are area with a higher population.
 ![heatmap-population](/report/state-level-heatmap-population.png)
 
 Data points in a selected county. In this example: Santa Cruz County
