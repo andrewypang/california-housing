@@ -11,7 +11,7 @@ Technology Used:
 
 ### Visualization of 1990 California Housing Prices derived from the 1990 United States Census
 
-![map-main](/report/map-main.png | width=400)
+![map-main](/report/map-main.png)
 
 Population Heatmap of California. Areas in red are area with a higher population.
 ![heatmap-population](/report/state-level-heatmap-population.png)
